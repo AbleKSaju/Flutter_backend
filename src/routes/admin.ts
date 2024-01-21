@@ -5,7 +5,7 @@ const router=express.Router()
 
 router.post('/login',adminLogin)
 
-router.post('/addCategory',addCategory)
+router.post('/addCategory',authMiddleware,addCategory)
 
 router.post('/addProduct',addProduct)
 

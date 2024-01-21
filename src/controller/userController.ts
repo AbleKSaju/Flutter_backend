@@ -33,7 +33,7 @@ export const verifyOtp=async (req: any, res:any) => {
         });
   
         await newUser.save();
-        res.status(201).json(newUser);
+        res.status(200).json(newUser);
       } else {
         res.json("Otp not match");
       }
@@ -82,5 +82,5 @@ export const logOut = (req:any, res:any) => {
       expires: new Date(0),
     });
   
-    res.status(200).json("User is loged OUT");
+    res.status(200).json("LogOut success");
   };

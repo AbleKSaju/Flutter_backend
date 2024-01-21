@@ -1,6 +1,6 @@
 import jwt from 'jsonwebtoken';
 
-const generateToken = (res: any, userData: any) => {
+const generateToken = async(res: any, userData: any) => {
     console.log("Enter");
     
     const payload={
@@ -9,11 +9,12 @@ const generateToken = (res: any, userData: any) => {
         name:userData.name,
         mobile:userData.mobile
     }
-    const token = jwt.sign(payload, 'jwtSecret', {
+    const token = await jwt.sign(payload, 'jwtSecret', {
         expiresIn: '30d'
     });
+    console.log(token,"tokkkk");
     
-    res.cookie('jwt', token, {
+    await res.cookie('jwt', token, {
         httpOnly: true,
         secure: false,
         maxAge: 30 * 24 * 60 * 60 * 1000,
