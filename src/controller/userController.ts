@@ -19,6 +19,9 @@ export const registerUser=async (req:any, res:any) => {
 
 export const verifyOtp=async (req: any, res:any) => {
     const { otp } = req.body;
+    console.log(otp);
+    console.log(req.session.userOTP,"oyppp");
+    
     if (otp) {
       if (otp == req.session.userOTP) {
         const { firstname, lastname, email, password, mobile } =
