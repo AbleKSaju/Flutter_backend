@@ -19,13 +19,12 @@ export const registerUser=async (req:any, res:any) => {
 
 export const verifyOtp=async (req: any, res:any) => {
   console.log("ENTER TO VERIFY");
+  console.log(req.body);
   
-    const { oldOtp,newOtp } = req.body;
-    
-    if (oldOtp && newOtp) {
-      if (oldOtp == newOtp) {
-        const { firstname, lastname, email, password, mobile } =
-          req.body;
+  
+    const { otp} = req.body;    
+    if (otp) {
+        const { firstname, lastname, email, password, mobile } = req.body;
         let name = firstname + " " + lastname;
         const hashpassword = await hashPassword(password);
         const newUser = new User({
@@ -34,15 +33,11 @@ export const verifyOtp=async (req: any, res:any) => {
           password: hashpassword,
           mobile,
         });
-  
         await newUser.save();
         res.status(200).json(newUser);
       } else {
         res.json("Otp not match");
       }
-    } else {
-      res.json("Otp Not Found");
-    }
   }
 
   export const userLogin=async (req:any, res:any) => {
@@ -73,10 +68,6 @@ export const verifyOtp=async (req: any, res:any) => {
       res.json("userData not exist");
     }
   }
-
-
-
-
 
 
 export const logOut = (req:any, res:any) => {

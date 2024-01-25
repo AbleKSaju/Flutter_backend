@@ -14,7 +14,6 @@ export const adminLogin = async (req: any, res: any) => {
       if (verified) {
         let token=await generateToken(res, adminData._id);
         console.log(token,"token");
-        
         res.json({
             token,
           _id: adminData?._id,
