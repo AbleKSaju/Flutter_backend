@@ -18,14 +18,14 @@ export const registerUser=async (req:any, res:any) => {
   }
 
 export const verifyOtp=async (req: any, res:any) => {
-    const { otp } = req.body;
-    console.log(otp);
-    console.log(req.session.userOTP,"oyppp");
+  console.log("ENTER TO VERIFY");
+  
+    const { oldOtp,newOtp } = req.body;
     
-    if (otp) {
-      if (otp == req.session.userOTP) {
+    if (oldOtp && newOtp) {
+      if (oldOtp == newOtp) {
         const { firstname, lastname, email, password, mobile } =
-          req.session.userData;
+          req.body;
         let name = firstname + " " + lastname;
         const hashpassword = await hashPassword(password);
         const newUser = new User({

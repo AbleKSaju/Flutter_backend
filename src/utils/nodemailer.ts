@@ -1,4 +1,5 @@
 import nodemailer from "nodemailer";
+import hashPassword from "./hashPassword";
 
 function generateotp() {
   var digits = "1234567890";
@@ -37,9 +38,7 @@ const sentOtp = async (req: any, res: any) => {
         `,
   });
   if (info) {
-    req.session.userOTP = otp;
-    req.session.userData = req.body;
-    res.status(200).json({message:"Verify your OTP on your Email"});
+    res.status(200).json({otp:otp, data:req.body, message:"Verify your OTP on your Email"});
   } else {
     res.json({message:"email error"});
   }
