@@ -1,22 +1,20 @@
 import jwt from 'jsonwebtoken';
 
 const generateToken = async(res: any, userData: any) => {
-    console.log("Enter");
     
     const payload={
         id:userData._id,
         email:userData.email,
         name:userData.name,
-        mobile:userData.mobile
     }
-    const token = await jwt.sign(payload, 'jwtSecret', {
+    const token = await jwt.sign({payload}, 'jwtSecret', {
         expiresIn: '30d'
     });
-    console.log(token,"tokkkk");
     
     await res.cookie('jwt', token, {
-        httpOnly: true,
+        httpOnly: false,
         secure: false,
+        sameSite:'strict',
         maxAge: 30 * 24 * 60 * 60 * 1000,
     });
     return token

@@ -18,13 +18,10 @@ export const registerUser=async (req:any, res:any) => {
   }
 
 export const verifyOtp=async (req: any, res:any) => {
-  console.log("ENTER TO VERIFY");
-  console.log(req.body);
-  
-  
-    const { otp} = req.body;    
+  console.log("ENTER TO VERIFY");  
+    const { otp} = req.body;
     if (otp) {
-        const { firstname, lastname, email, password, mobile } = req.body;
+        const { firstname, lastname, email, password, mobile } = req.body.data;
         let name = firstname + " " + lastname;
         const hashpassword = await hashPassword(password);
         const newUser = new User({
@@ -46,35 +43,39 @@ export const verifyOtp=async (req: any, res:any) => {
       let userData:any = await User.findOne({ email });
       if (userData) {
         let verified = await verifyPassword(password, userData.password);
-        console.log(verified, "vero");
         if (verified) {
-          let token=await generateToken(res, userData);
-          console.log(token,"tokn");
-          
+          let token=await generateToken(res, userData);          
           res.json({
-            token,
-            _id: userData._id,
-            name: userData.name,
-            email: userData.email,
-            mobile: userData.mobile,
+            token:token,
+            message:"Login success"
+            // _id: userData._id,
+            // name: userData.name,
+            // email: userData.email,
+            // mobile: userData.mobile,
           });
         } else {
-          res.json({message:"Password is wrong"});
+          res.json({status:false , message:"Password is wrong"});
         }
       } else {
-        res.json("User Not Found");
+        res.json({status:false , message:"User Not Found"});
       }
     } catch (error) {
-      res.json("userData not exist");
+      res.json({status:false , message:"userData not exist"});
     }
   }
 
 
 export const logOut = (req:any, res:any) => {
-    res.cookie("jwt", "", {
-      httpOnly: true,
-      expires: new Date(0),
-    });
-  
-    res.status(200).json("LogOut success");
+  try {
+    
+    res.cookie('jwt','',{
+      httpOnly:false,
+      expires:new Date(0)
+    })
+    res.json({message:'logout success'})
+
+    
+} catch (error) {
+    res.json({message:"logout failed"})
+}
   };
