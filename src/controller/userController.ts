@@ -48,6 +48,7 @@ export const verifyOtp=async (req: any, res:any) => {
         if (verified) {
           let token=await generateToken(res, userData);          
           res.json({
+            status:true,
             token:token,
             message:"Login success"
             // _id: userData._id,
