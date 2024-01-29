@@ -8,12 +8,12 @@ export const registerUser=async (req:any, res:any) => {
       const { email } = req.body;
       let userData: any = await User.findOne({ email });
       if (userData) {
-        return res.json({message:"user already exist"});
+        return res.json({status:false , message:"user already exist"});
       } else {
         await sentOtp(req, res);
       }
     } catch (error) {
-      res.json({message:"Invalid Data"});
+      res.json({status:false , message:"Invalid Data"});
     }
   }
 
@@ -33,9 +33,9 @@ export const verifyOtp=async (req: any, res:any) => {
           mobile,
         });
         await newUser.save();
-        res.status(200).json(newUser);
+        res.status(200).json({status:true,newUser});
       } else {
-        res.json("Otp not match");
+        res.json({status:false,message:"Otp not match"});
       }
   }
 
