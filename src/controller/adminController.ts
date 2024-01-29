@@ -6,6 +6,7 @@ import { verifyPassword } from "../utils/hashPassword";
 
 export const adminLogin = async (req: any, res: any) => {
   try {
+    console.log("ENter to admin");
     const { email, password } = req.body;
     let adminData: any = await User?.findOne({ email });
     if (adminData?.isAdmin == true) {
@@ -15,6 +16,7 @@ export const adminLogin = async (req: any, res: any) => {
         let token = await generateToken(res, adminData);
         console.log(token, "token");
         res.json({
+          status:true,
           token: token,
           message: "Login success",
           // _id: adminData?._id,
