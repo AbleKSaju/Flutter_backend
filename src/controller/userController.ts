@@ -21,8 +21,8 @@ export const verifyOtp=async (req: any, res:any) => {
   console.log("ENTER TO VERIFY");  
   console.log(req.body,"body");
   
-    const { otp} = req.body;
-    if (otp) {
+    const { otp,oldotp} = req.body;
+    if (otp==oldotp) {
         const { firstname, lastname, email, password, mobile } = req.body;
         let name = firstname + " " + lastname;
         const hashpassword = await hashPassword(password);
