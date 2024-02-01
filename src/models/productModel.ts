@@ -5,32 +5,40 @@ interface IProduct extends Document {
   price: number;
   stock: Number;
   category: string;
+  image:any
 }
-const productSchema = new mongoose.Schema<IProduct>({
-  name: {
-    type: String,
-    required: true,
+const productSchema = new mongoose.Schema<IProduct>(
+  {
+    name: {
+      type: String,
+      required: true,
+    },
+    image: {
+      type: Array,
+      required: true,
+    },
+    description: {
+      type: String,
+      required: true,
+      unique: true,
+    },
+    price: {
+      type: Number,
+      required: true,
+    },
+    stock: {
+      type: Number,
+      required: true,
+    },
+    category: {
+      type: String,
+      required: true,
+    },
   },
-  description: {
-    type: String,
-    required: true,
-    unique: true,
-  },
-  price: {
-    type: Number,
-    required: true,
-  },
-  stock: {
-    type: Number,
-    required: true,
-  },
-  category: {
-    type: String,
-    required: true,
-  },
-},{
-  timestamps:true
-})
+  {
+    timestamps: true,
+  }
+);
 
 const Product = mongoose.model("product", productSchema);
 export default Product;

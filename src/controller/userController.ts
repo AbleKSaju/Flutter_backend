@@ -33,7 +33,7 @@ export const verifyOtp=async (req: any, res:any) => {
           mobile,
         });
         await newUser.save();
-        res.status(200).json({status:true,newUser});
+        res.status(200).json({status:true,newUser,message:"Otp verified"});
       } else {
         res.json({status:false,message:"Otp not match"});
       }

@@ -1,3 +1,4 @@
+import { Request, Response } from "express";
 import Category from "../models/categoryModel";
 import Product from "../models/productModel";
 import User from "../models/userModel";
@@ -16,7 +17,7 @@ export const adminLogin = async (req: any, res: any) => {
         let token = await generateToken(res, adminData);
         console.log(token, "token");
         res.json({
-          status:true,
+          status: true,
           token: token,
           message: "Login success",
           // _id: adminData?._id,
@@ -38,6 +39,7 @@ export const adminLogin = async (req: any, res: any) => {
 export const addCategory = async (req: any, res: any) => {
   try {
     console.log("success");
+    console.log(req.file);
 
     const { name } = req?.body;
     let categoryData = await Category?.findOne({ name });
@@ -46,11 +48,37 @@ export const addCategory = async (req: any, res: any) => {
     }
     await Category?.create({
       name: name,
+      image: req.file.filename,
     });
     res.json({ status: true, message: "category created" });
   } catch (error) {
     res.json({ status: false, message: "Error Occur" });
   }
+};
+
+export const getCategory = async (req: Request, res: Response) => {
+  await Category.find()
+    .lean()
+    .then((data: any) => {
+      if(data.length){
+        data.reverse();
+        res.json({ status: true, data: data });
+      }else{
+        res.json({ status: false, message: "No categories found" });
+      }
+    });
+};
+
+export const deleteCategory = async (req:Request, res:Response) => {
+  const {id} = req.body;
+  await Category
+    .findByIdAndDelete({ _id: id })
+    .then(() => {
+     res.json({status:true , message:"Category deleted"})
+    })
+    .catch((err) => {
+      res.json({status:false , data:err , message:"Error Occur"})
+    });
 };
 
 export const addProduct = async (req: any, res: any) => {
@@ -61,15 +89,49 @@ export const addProduct = async (req: any, res: any) => {
   }
   let categoryData = await Category.findOne({ name: category }).lean();
   if (categoryData) {
+    console.log(req.files,"FILE");
+    
     await Product?.create({
       name,
       description,
       price,
       stock,
       category,
+      image: [
+        req.files[0].filename,
+        req.files[1].filename,
+        req.files[2].filename,
+        req.files[3].filename,
+      ],
     });
     res.json({ status: true, message: "Product added" });
   } else {
     res.json({ status: false, message: "Category not found" });
+  };
   }
-};
+
+  export const getProduct = async(req:Request,res:Response)=>{
+    await Product.find()
+    .lean()
+    .then((data: any) => {
+      if(data.length){
+        data.reverse();
+        res.json({ status: true, data: data });
+      }else{
+        res.json({ status: false, message: "No Products found" });
+      }
+    });
+  }
+
+  export const deleteProduct = async (req:Request, res:Response) => {
+    const {id} = req.body;
+    await Product
+      .findByIdAndDelete({ _id: id })
+      .then((data) => {
+       res.json({status:true , message:"Product deleted"})
+      })
+      .catch((err) => {
+        res.json({status:false , data:err , message:"Error Occur"})
+      });
+  };
+  
