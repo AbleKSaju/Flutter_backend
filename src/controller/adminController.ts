@@ -60,24 +60,53 @@ export const getCategory = async (req: Request, res: Response) => {
   await Category.find()
     .lean()
     .then((data: any) => {
-      if(data.length){
+      if (data.length) {
         data.reverse();
         res.json({ status: true, data: data });
-      }else{
+      } else {
         res.json({ status: false, message: "No categories found" });
       }
     });
 };
 
-export const deleteCategory = async (req:Request, res:Response) => {
-  const {id} = req.body;
-  await Category
-    .findByIdAndDelete({ _id: id })
+export const editCategory = async (req: Request, res: Response) => {
+  try {
+    const { id, name } = req.body;
+    let image;
+    const data = await Category.findById(id).lean();
+    if (data) {
+      if (req.file) {
+        image = req.file.filename;
+        await Category.findByIdAndUpdate(id, { name, image }, { new: true });
+        res
+          .status(200)
+          .json({ status: true, message: "Category data changed" });
+      } else {
+        await Category.findByIdAndUpdate(id, { name }, { new: true });
+        res
+          .status(200)
+          .json({ status: true, message: "Category data changed" });
+      }
+    } else {
+      return res
+        .status(404)
+        .json({ status: false, message: "Category not found" });
+    }
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ status: false, message: "Error occur" });
+  }
+};
+
+
+export const deleteCategory = async (req: Request, res: Response) => {
+  const { id } = req.body;
+  await Category.findByIdAndDelete({ _id: id })
     .then(() => {
-     res.json({status:true , message:"Category deleted"})
+      res.json({ status: true, message: "Category deleted" });
     })
     .catch((err) => {
-      res.json({status:false , data:err , message:"Error Occur"})
+      res.json({ status: false, data: err, message: "Error Occur" });
     });
 };
 
@@ -89,8 +118,8 @@ export const addProduct = async (req: any, res: any) => {
   }
   let categoryData = await Category.findOne({ name: category }).lean();
   if (categoryData) {
-    console.log(req.files,"FILE");
-    
+    console.log(req.files, "FILE");
+
     await Product?.create({
       name,
       description,
@@ -107,31 +136,29 @@ export const addProduct = async (req: any, res: any) => {
     res.json({ status: true, message: "Product added" });
   } else {
     res.json({ status: false, message: "Category not found" });
-  };
   }
+};
 
-  export const getProduct = async(req:Request,res:Response)=>{
-    await Product.find()
+export const getProduct = async (req: Request, res: Response) => {
+  await Product.find()
     .lean()
     .then((data: any) => {
-      if(data.length){
+      if (data.length) {
         data.reverse();
         res.json({ status: true, data: data });
-      }else{
+      } else {
         res.json({ status: false, message: "No Products found" });
       }
     });
-  }
+};
 
-  export const deleteProduct = async (req:Request, res:Response) => {
-    const {id} = req.body;
-    await Product
-      .findByIdAndDelete({ _id: id })
-      .then((data) => {
-       res.json({status:true , message:"Product deleted"})
-      })
-      .catch((err) => {
-        res.json({status:false , data:err , message:"Error Occur"})
-      });
-  };
-  
+export const deleteProduct = async (req: Request, res: Response) => {
+  const { id } = req.body;
+  await Product.findByIdAndDelete({ _id: id })
+    .then((data) => {
+      res.json({ status: true, message: "Product deleted" });
+    })
+    .catch((err) => {
+      res.json({ status: false, data: err, message: "Error Occur" });
+    });
+};

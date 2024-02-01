@@ -13,6 +13,8 @@ router.post('/addCategory',authMiddleware,category.single("image"),addCategory)
 
 router.get('/getCategory',authMiddleware,getCategory)
 
+
+
 router.get('/deleteCategory',authMiddleware,deleteCategory)
 
 router.post('/addProduct',products.array("image", 4),addProduct)
