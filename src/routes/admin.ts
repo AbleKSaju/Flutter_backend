@@ -15,12 +15,12 @@ router.get('/getCategory',authMiddleware,getCategory)
 
 
 
-router.get('/deleteCategory',authMiddleware,deleteCategory)
+router.post('/deleteCategory',authMiddleware,deleteCategory)
 
 router.post('/addProduct',products.array("image", 4),addProduct)
 
 router.get('/getProduct',authMiddleware,getProduct)
 
-router.get('/deleteProduct',authMiddleware,deleteProduct)
+router.post('/deleteProduct',authMiddleware,deleteProduct)
 
 export default router

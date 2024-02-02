@@ -154,8 +154,12 @@ export const getProduct = async (req: Request, res: Response) => {
 
 export const deleteProduct = async (req: Request, res: Response) => {
   const { id } = req.body;
+  console.log(id,"ID");
+  
   await Product.findByIdAndDelete({ _id: id })
     .then((data) => {
+      console.log(data);
+      
       res.json({ status: true, message: "Product deleted" });
     })
     .catch((err) => {

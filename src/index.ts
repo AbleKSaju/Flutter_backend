@@ -8,7 +8,7 @@ import session, { SessionOptions } from "express-session";
 import { MemoryStore } from "express-session";
 import cookieParser from 'cookie-parser';
 import cors from 'cors'
-
+import path from 'path'
 
 
 const app = express();
@@ -19,6 +19,7 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 connectDB();
 const store = new MemoryStore();
+app.use(express.static(path.join(__dirname, "public")));
 app.use(cors({
   origin: "http://localhost:3000",
   methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
