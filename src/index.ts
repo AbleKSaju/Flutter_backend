@@ -19,7 +19,7 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 connectDB();
 const store = new MemoryStore();
-app.use(express.static(path.join(__dirname, "public")));
+app.use(express.static("public/uploads/"));
 app.use(cors({
   origin: "http://localhost:3000",
   methods: "GET,HEAD,PUT,PATCH,POST,DELETE",

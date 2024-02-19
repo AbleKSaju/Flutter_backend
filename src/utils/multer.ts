@@ -1,6 +1,6 @@
 import multer from "multer";
 
-const category = multer.diskStorage({
+const category = multer.diskStorage({  
   destination: (req, file, cb) => {
     return cb(null, "public/uploads/categories");
   },

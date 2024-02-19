@@ -15,6 +15,7 @@ export const adminLogin = async (req: any, res: any) => {
       console.log(verified, "vero");
       if (verified) {
         let token = await generateToken(res, adminData);
+        res.cookie('jwt', token, { httpOnly: true });
         console.log(token, "token");
         res.json({
           status: true,
@@ -97,10 +98,14 @@ export const editCategory = async (req: Request, res: Response) => {
     res.status(500).json({ status: false, message: "Error occur" });
   }
 };
-
+ 
 
 export const deleteCategory = async (req: Request, res: Response) => {
-  const { id } = req.body;
+  console.log("I am deleteCategory");
+  
+  console.log(req.params,"iddd");
+  const { id } = req.params;
+  
   await Category.findByIdAndDelete({ _id: id })
     .then(() => {
       res.json({ status: true, message: "Category deleted" });
@@ -153,9 +158,8 @@ export const getProduct = async (req: Request, res: Response) => {
 };
 
 export const deleteProduct = async (req: Request, res: Response) => {
-  const { id } = req.body;
+  const { id } = req.params;
   console.log(id,"ID");
-  
   await Product.findByIdAndDelete({ _id: id })
     .then((data) => {
       console.log(data);
@@ -165,4 +169,38 @@ export const deleteProduct = async (req: Request, res: Response) => {
     .catch((err) => {
       res.json({ status: false, data: err, message: "Error Occur" });
     });
+};
+
+export const editProduct = async (req:any, res: Response) => {
+  try {
+    const { id, name, description, price, stock, category } = req.body;
+    let image:any;
+    const data = await Category.findById(id).lean();
+    if (data) {
+      if (req.file) {
+         image = [
+          req?.files[0]?.filename,
+          req?.files[1]?.filename,
+          req?.files[2]?.filename,
+          req?.files[3]?.filename,
+        ],
+        await Category.findByIdAndUpdate(id, { name, image, description, price, stock, category }, { new: true });
+        res
+          .status(200)
+          .json({ status: true, message: "Prodict Edited" });
+      } else {
+        await Category.findByIdAndUpdate(id, { name, description, price, stock, category }, { new: true });
+        res
+          .status(200)
+          .json({ status: true, message: "Prodict Edited" });
+      }
+    } else {
+      return res
+        .status(404)
+        .json({ status: false, message: "Product not found" });
+    }
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ status: false, message: "Error occur" });
+  }
 };
