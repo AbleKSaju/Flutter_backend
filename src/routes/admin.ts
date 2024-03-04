@@ -1,6 +1,6 @@
 import express from "express"
-import { addCategory, addProduct, adminLogin, deleteCategory, deleteProduct, editProduct, getCategory, getProduct } from "../controller/adminController"
-import authMiddleware from "../middleware/auth"
+import { addCategory, addProduct, adminLogin, deleteCategory, deleteProduct, editCategory, editProduct, getCategory, getProduct, getSearchedProducts } from "../controller/adminController"
+import authMiddlewareForAdmin from "../middleware/auth"
 import multers from "../utils/multer"
 const router=express.Router()
 const category = multers.categories;
@@ -9,20 +9,22 @@ const products = multers.products;
 
 router.post('/login',adminLogin)
 
-router.post('/addCategory',authMiddleware,category.single("image"),addCategory)
+router.post('/addCategory',category.single("image"),addCategory)
 
-router.get('/getCategory',authMiddleware,getCategory)
+router.get('/getCategory',getCategory)
 
+router.get('/getSearchedProducts/:product',getSearchedProducts)
 
+router.delete('/deleteCategory/:id',deleteCategory)
 
-router.delete('/deleteCategory/:id',authMiddleware,deleteCategory)
+router.post('/editCategory',category.single("image"),editCategory)
 
 router.post('/addProduct',products.array("image", 4),addProduct)
 
-router.get('/getProduct',authMiddleware,getProduct)
+router.get('/getProduct',getProduct)
 
-router.delete('/deleteProduct/:id',authMiddleware,deleteProduct)
+router.delete('/deleteProduct/:id',deleteProduct)
 
-router.post('/editProduct',products.array("image", 4),authMiddleware,editProduct)
+router.patch('/editProduct',products.array("image", 4),editProduct)
 
 export default router

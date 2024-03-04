@@ -1,13 +1,14 @@
 import mongoose from "mongoose";
-interface IProduct extends Document {
-  name: string;
-  description: string;
-  price: number;
-  stock: Number;
-  category: string;
-  image:any
-}
-const productSchema = new mongoose.Schema<IProduct>(
+// import { isStringLiteralLike } from "typescript";
+// interface IProduct extends Document {
+//   name: string;
+//   description: string;
+//   price: number;
+//   stock: Number;
+//   category: string;
+//   image:string[]
+// }
+const productSchema:any = new mongoose.Schema(
   {
     name: {
       type: String,

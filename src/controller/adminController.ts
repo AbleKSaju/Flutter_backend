@@ -39,8 +39,8 @@ export const adminLogin = async (req: any, res: any) => {
 
 export const addCategory = async (req: any, res: any) => {
   try {
-    console.log("success");
-    console.log(req.file);
+    console.log(req,"RQQQQ");
+    console.log(req.user,"USER");
 
     const { name } = req?.body;
     let categoryData = await Category?.findOne({ name });
@@ -70,11 +70,40 @@ export const getCategory = async (req: Request, res: Response) => {
     });
 };
 
+export const getSearchedProducts = async (req: Request, res: Response) => {
+
+  const {product} = req.params
+  const searchData = await Product
+  .find({
+    $or: [
+      {
+        name: { $regex: ".*" + product + ".*", $options: "i" },
+      }
+    ],
+  })
+  .lean()
+    .then((data: any) => {
+      console.log(data,"Prooooo");
+      
+      if (data.length) {
+        data.reverse();
+        res.json({ status: true, data: data });
+      } else {
+        res.json({ status: false, message: "No categories found" });
+      }
+    });
+};
+
+
 export const editCategory = async (req: Request, res: Response) => {
   try {
     const { id, name } = req.body;
+    console.log(id, name,"id, nameid, name");
+    
     let image;
     const data = await Category.findById(id).lean();
+    console.log(data,"datadata");
+    
     if (data) {
       if (req.file) {
         image = req.file.filename;
@@ -123,7 +152,6 @@ export const addProduct = async (req: any, res: any) => {
   }
   let categoryData = await Category.findOne({ name: category }).lean();
   if (categoryData) {
-    console.log(req.files, "FILE");
 
     await Product?.create({
       name,
@@ -172,22 +200,24 @@ export const deleteProduct = async (req: Request, res: Response) => {
 };
 
 export const editProduct = async (req:any, res: Response) => {
-  try {
+  console.log(" iAM editProduct");
+  
+  try {    
     const { id, name, description, price, stock, category } = req.body;
-    let image:any;
-    const data = await Category.findById(id).lean();
+    const data = await Product.findOne({_id:id}).lean();
     if (data) {
-      if (req.file) {
-         image = [
-          req?.files[0]?.filename,
-          req?.files[1]?.filename,
-          req?.files[2]?.filename,
-          req?.files[3]?.filename,
-        ],
-        await Category.findByIdAndUpdate(id, { name, image, description, price, stock, category }, { new: true });
-        res
-          .status(200)
-          .json({ status: true, message: "Prodict Edited" });
+        if (req.files) {
+        const data = await Product.findByIdAndUpdate(
+          id,
+          { name, description, price, stock, category, image: [
+            req.files[0].filename,
+            req.files[1].filename,
+            req.files[2].filename,
+            req.files[3].filename,
+          ], },
+          { new: true }
+        );
+        res.json({ status: true, message: "Prodict Edited" });
       } else {
         await Category.findByIdAndUpdate(id, { name, description, price, stock, category }, { new: true });
         res
@@ -195,12 +225,13 @@ export const editProduct = async (req:any, res: Response) => {
           .json({ status: true, message: "Prodict Edited" });
       }
     } else {
-      return res
-        .status(404)
-        .json({ status: false, message: "Product not found" });
+      console.log("Iam eelsde");
+      return res.status(404).json({ status: false, message: "Product not found" });
     }
   } catch (error) {
-    console.error(error);
+    console.log("Ia m error");
+    
+    console.log(error,"errrrr");
     res.status(500).json({ status: false, message: "Error occur" });
   }
 };

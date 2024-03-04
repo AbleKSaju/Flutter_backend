@@ -5,6 +5,8 @@ interface IUser extends Document {
   password: string;
   mobile: string;
   isAdmin: boolean;
+  cart: string[];
+  wishlist: any
 }
 const userSchema = new mongoose.Schema<IUser>({
   name: {
@@ -20,10 +22,18 @@ const userSchema = new mongoose.Schema<IUser>({
     type: String,
     required: true,
   },
+  wishlist:{
+    type: Array,
+    required: true,
+  },
   mobile: {
     type: String,
     required: true,
   },
+  cart:[{
+    id:String,
+    size:String
+}],
   isAdmin: {
     type: Boolean,
     default: false,

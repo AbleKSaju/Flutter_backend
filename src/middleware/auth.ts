@@ -1,19 +1,30 @@
 import jwt from "jsonwebtoken";
 
-const verifyToken = (token: any) => {
+const verifyToken = async(token: any) => {
+  console.log("Enter to ver tojeken");
+  
   try {
-    const decoded = jwt.verify(token, "jwtSecret");
+    const decoded = await jwt.verify(token, "abc123");
+    console.log(decoded ,"from verify token");
+    
     return decoded;
   } catch (error) {
     throw new Error("Invalid token");
   }
 };
 
-const authMiddleware = async (req: any, res: any, next: any) => {
-  let token = req.cookies.jwt;
+const authMiddlewareForAdmin = async (req: any, res: any, next: any) => {
+  console.log("Enter to auth");
+  
+  const authorizationHeader = req.headers.authorization;
+const token = authorizationHeader ? authorizationHeader.split('Bearer ')[1] : null;
+console.log(token,"TOKKKK");
+  
   if (token) {
     try {
-      const decoded = verifyToken(token);
+      const decoded = await verifyToken(token);
+      console.log(decoded,"deed");
+      
       req.user = decoded;
       next();
     } catch (error: any) {
@@ -24,4 +35,4 @@ const authMiddleware = async (req: any, res: any, next: any) => {
   }
 };
 
-export default authMiddleware;
+export default authMiddlewareForAdmin;

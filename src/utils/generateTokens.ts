@@ -7,8 +7,6 @@ const generateToken = async(res: any, userData: any) => {
         email:userData.email,
         name:userData.name,
     }
-    
-
 
     const token = jwt.sign({payload} , 'abc123', {
         expiresIn:'30d'

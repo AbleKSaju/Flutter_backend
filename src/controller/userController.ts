@@ -1,7 +1,9 @@
+import { Request } from "express";
 import User from "../models/userModel";
 import generateToken from "../utils/generateTokens";
 import hashPassword, { verifyPassword } from "../utils/hashPassword";
 import sentOtp from "../utils/nodemailer";
+import Product from "../models/productModel";
 
 export const registerUser=async (req:any, res:any) => {
     try {
@@ -18,14 +20,12 @@ export const registerUser=async (req:any, res:any) => {
   }
 
 export const verifyOtp=async (req: any, res:any) => {
-  console.log("ENTER TO VERIFY");  
-  console.log(req.body,"body");
   
     const { otp,oldotp} = req.body;
     if (otp==oldotp) {
-        const { firstname, lastname, email, password, mobile } = req.body;
+        const { firstname, lastname, email, password, mobile } :any= req.body;
         let name = firstname + " " + lastname;
-        const hashpassword = await hashPassword(password);
+        const hashpassword:any = await hashPassword(password);
         const newUser = new User({
           name,
           email,
@@ -44,6 +44,7 @@ export const verifyOtp=async (req: any, res:any) => {
       const { email, password } = req.body;
       let userData:any = await User.findOne({ email });
       if (userData) {
+
         let verified = await verifyPassword(password, userData.password);
         if (verified) {
           let token=await generateToken(res, userData);          
@@ -67,6 +68,169 @@ export const verifyOtp=async (req: any, res:any) => {
     }
   }
 
+  export const addToCart=async (req:any,res:any)=>{
+    try {
+      const { id, size } = req.params;
+            const user:any = await User.findById(req.user.payload.id);
+            
+            const itemExists = user.cart.some((item:any) => item.id === id);
+
+            if (itemExists) {
+              return res.json({ status:false , message: 'Item already exists' });
+            }
+      const response = await User.findByIdAndUpdate(req.user.payload.id,{$addToSet: {'cart': { id: id, size: size }}},{ new: true });  
+      
+      if(response){
+        res.json({status:true,message:"Product added to cart"});
+      }else{
+        res.json({status:false,message:"Product not found"});
+      }
+    } catch (error) {
+      res.json({status:false,message:error});
+    }
+  }
+
+  export const getProductDetail=async (req:any,res:any)=>{
+    try {      
+      const { id } = req.params;
+      
+      const productData = await Product.findById(id);
+      
+      if(productData){
+        res.json({data:productData})
+      }else{
+        res.json({ status: false, message: "Product Not Found" });
+      }
+    } catch (error) {
+      res.json({status:false,message:error});
+    }
+
+
+
+
+  }
+
+  export const getCart = async(req:any,res:any)=>{
+    try {
+      let datas: any[] = [];
+      const userResponse: any = await User?.findOne({ _id: req.user.payload.id });
+      
+      await Promise.all(
+        userResponse?.cart?.map(async (cartItem: any) => {
+          const productResponse: any = await Product?.findOne({ _id: cartItem.id });
+          const productDetails: any = { ...productResponse };
+          if (cartItem?.size) {
+            productDetails._doc.size = cartItem.size;
+          }          
+          datas.push(productDetails._doc);
+        })
+      );
+      
+      if(datas){
+        res.status(200).json({status:true,datas});
+      }else{
+        res.json({status:false,message:"Cart not found"});
+      }
+    } catch (error) {
+      res.json({status:false,message:error});
+    }
+  }
+
+  
+
+  export const addWishList=async (req:any,res:any)=>{
+    try {
+      const { id } = req.params;
+            const user:any = await User.findById(req.user.payload.id);
+            
+            // const itemExists = user.cart.some((item:any) => item.id === id);
+
+            // if (itemExists) {
+            //   return res.json({ status:false , message: 'Item already exists' });
+            // }
+      const response = await User.findByIdAndUpdate(req.user.payload.id,{$addToSet: {wishlist: id}},{ new: true });  
+      if(response){
+        res.json({status:true,message:"Product added to wishlist"});
+      }else{
+        res.json({status:false,message:"Product not found"});
+      }
+    } catch (error) {
+      res.json({status:false,message:error});
+    }
+  }
+
+  export const getWishLists=async (req:any,res:any)=>{
+    console.log("getWishLists");
+    
+      const userResponse: any = await User.findOne({ _id: req.user.payload.id });
+      console.log(userResponse.wishlist,"userResponseuserResponse"      );
+      let datas:any=[]   
+      await Promise.all(
+        userResponse?.wishlist?.map(async (items: any) => {
+          const productResponse: any = await Product?.findOne({ _id: items });
+          console.log(productResponse,'productResponseproductResponse');
+          
+          let productDetails: any = { ...productResponse };
+          
+          datas.push(productDetails._doc);
+        })
+      );
+
+      console.log(datas,"DATAASS");
+      
+
+      
+      if(datas.length){
+        res.json({statue:true , data:datas})
+      }else{
+        res.json({status:false,message:"Wishlist not found"});
+      }
+  }
+
+  export const deleteWishlist = async (req:any,res:any)=>{
+    console.log("I am deleteWishlist");
+    
+    console.log(req.params,"iddd");
+    const { id } = req.params;
+    console.log(req.user.payload.id,"req.user.payload.id");
+    
+    await User.findByIdAndUpdate(
+      req.user.payload.id,
+      { $pull: { 'cart': { 'id': id } } },
+      { new: true }
+    )
+            .then((data) => {
+        console.log(data,"dtaaaaa");
+        
+        res.json({ status: true, message: "Wishlist deleted" });
+      })
+      .catch((err) => {
+        res.json({ status: false, data: err, message: "Error Found" });
+      });
+  };
+
+
+  export const deleteCart = async (req:any,res:any)=>{
+      console.log("I am deleteCart");
+      
+      console.log(req.params,"iddd");
+      const { id } = req.params;
+      console.log(req.user.payload.id,"req.user.payload.id");
+      
+      await User.findByIdAndUpdate(
+        req.user.payload.id,
+        { $pull: { wishlist: id  } },
+        { new: true }
+      )
+              .then((data) => {
+          console.log(data,"dtaaaaa");
+          
+          res.json({ status: true, message: "Wishlist deleted" });
+        })
+        .catch((err) => {
+          res.json({ status: false, data: err, message: "Error Found" });
+        });
+    };
 
 export const logOut = (req:any, res:any) => {
   try {
@@ -77,8 +241,8 @@ export const logOut = (req:any, res:any) => {
     })
     res.json({message:'logout success'})
 
-    
 } catch (error) {
     res.json({message:"logout failed"})
 }
   };
+
