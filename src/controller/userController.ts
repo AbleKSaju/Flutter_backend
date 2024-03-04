@@ -97,7 +97,7 @@ export const verifyOtp=async (req: any, res:any) => {
       const productData = await Product.findById(id);
       
       if(productData){
-        res.json({data:productData})
+        res.json({status: true ,data:productData})
       }else{
         res.json({ status: false, message: "Product Not Found" });
       }
@@ -114,7 +114,7 @@ export const verifyOtp=async (req: any, res:any) => {
       console.log(productData,"productDataproductData");
       
       if(productData){
-        res.json({data:productData})
+        res.json({status: true , data:productData})
       }else{
         res.json({ status: false, message: "Product Not Found" });
       }
