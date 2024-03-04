@@ -104,11 +104,26 @@ export const verifyOtp=async (req: any, res:any) => {
     } catch (error) {
       res.json({status:false,message:error});
     }
-
-
-
-
   }
+
+  export const getProductsOfCategory=async (req:any,res:any)=>{
+    try {      
+      const { category } = req.params;
+      console.log(category,"Catttt");
+      const productData = await Product.find({category:category});
+      console.log(productData,"productDataproductData");
+      
+      if(productData){
+        res.json({data:productData})
+      }else{
+        res.json({ status: false, message: "Product Not Found" });
+      }
+    } catch (error) {
+      res.json({status:false,message:error});
+    }
+  }
+
+
 
   export const getCart = async(req:any,res:any)=>{
     try {
