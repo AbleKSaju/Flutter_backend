@@ -93,9 +93,7 @@ export const verifyOtp=async (req: any, res:any) => {
   export const getProductDetail=async (req:any,res:any)=>{
     try {      
       const { id } = req.params;
-      
       const productData = await Product.findById(id);
-      
       if(productData){
         res.json({status: true ,data:productData})
       }else{
@@ -122,8 +120,6 @@ export const verifyOtp=async (req: any, res:any) => {
       res.json({status:false,message:error});
     }
   }
-
-
 
   export const getCart = async(req:any,res:any)=>{
     try {
@@ -157,12 +153,6 @@ export const verifyOtp=async (req: any, res:any) => {
     try {
       const { id } = req.params;
             const user:any = await User.findById(req.user.payload.id);
-            
-            // const itemExists = user.cart.some((item:any) => item.id === id);
-
-            // if (itemExists) {
-            //   return res.json({ status:false , message: 'Item already exists' });
-            // }
       const response = await User.findByIdAndUpdate(req.user.payload.id,{$addToSet: {wishlist: id}},{ new: true });  
       if(response){
         res.json({status:true,message:"Product added to wishlist"});
@@ -173,37 +163,50 @@ export const verifyOtp=async (req: any, res:any) => {
       res.json({status:false,message:error});
     }
   }
-
+  
   export const getWishLists=async (req:any,res:any)=>{
     console.log("getWishLists");
     
-      const userResponse: any = await User.findOne({ _id: req.user.payload.id });
-      console.log(userResponse.wishlist,"userResponseuserResponse"      );
-      let datas:any=[]   
-      await Promise.all(
-        userResponse?.wishlist?.map(async (items: any) => {
-          const productResponse: any = await Product?.findOne({ _id: items });
-          console.log(productResponse,'productResponseproductResponse');
-          
-          let productDetails: any = { ...productResponse };
-          
-          datas.push(productDetails._doc);
-        })
+    const userResponse: any = await User.findOne({ _id: req.user.payload.id });
+    console.log(userResponse.wishlist,"userResponseuserResponse"      );
+    let datas:any=[]   
+    await Promise.all(
+      userResponse?.wishlist?.map(async (items: any) => {
+        const productResponse: any = await Product?.findOne({ _id: items });
+        console.log(productResponse,'productResponseproductResponse');
+        
+        let productDetails: any = { ...productResponse };
+        
+        datas.push(productDetails._doc);
+      })
       );
-
-      console.log(datas,"DATAASS");
       
-
+      console.log(datas,"DATAASS");
       
       if(datas.length){
         res.json({statue:true , data:datas})
       }else{
         res.json({status:false,message:"Wishlist not found"});
       }
-  }
+    }
 
-  export const deleteWishlist = async (req:any,res:any)=>{
-    console.log("I am deleteWishlist");
+    export const addAddress=async (req:any,res:any)=>{
+      try {
+        console.log(req.body,"BODY");
+        
+        const response = await User.findByIdAndUpdate(req.user.payload.id,{$push: {address: req.body}},{ new: true });  
+        if(response){
+          res.json({status:true,message:"Address Created Success"});
+        }else{
+          res.json({status:false,message:"Address Error"});
+        }
+      } catch (error) {
+        res.json({status:false,message:error});
+      }
+    }
+    
+    export const deleteWishlist = async (req:any,res:any)=>{
+      console.log("I am deleteWishlist");
     
     console.log(req.params,"iddd");
     const { id } = req.params;

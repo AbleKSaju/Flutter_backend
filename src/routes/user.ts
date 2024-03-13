@@ -1,6 +1,6 @@
 import express from "express";
 import authMiddleware from "../utils/authMiddleware";
-import { addToCart, addWishList, deleteCart, getCart, getProductDetail, getProductsOfCategory, getWishLists, logOut, registerUser, userLogin, verifyOtp } from "../controller/userController";
+import { addAddress, addToCart, addWishList, deleteCart, getCart, getProductDetail, getProductsOfCategory, getWishLists, logOut, registerUser, userLogin, verifyOtp } from "../controller/userController";
 const router = express.Router();
 
 router.get("/", (req, res) => {
@@ -24,9 +24,13 @@ router.post("/addWishList/:id",authMiddleware, addWishList);
 
 router.get("/getWishList",authMiddleware, getWishLists);
 
+router.post("/addAddress",authMiddleware, addAddress);
+
 router.delete("/deleteWishList/:id", authMiddleware, deleteCart);
 
 router.get("/getProductDetail/:id", getProductDetail);
+
+router.get("/getProducts/:category", getProductsOfCategory);
 
 router.get("/getProducts/:category", getProductsOfCategory);
 

@@ -83,7 +83,6 @@ export const getSearchedProducts = async (req: Request, res: Response) => {
   })
   .lean()
     .then((data: any) => {
-      console.log(data,"Prooooo");
       
       if (data.length) {
         data.reverse();
