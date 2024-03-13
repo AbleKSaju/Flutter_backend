@@ -226,7 +226,26 @@ export const getAddress = async (req: any, res: any) => {
   }
 };
 
-export const deleteWishlist = async (req: any, res: any) => {
+export const deleteAddress = async (req: any, res: any) => {
+  try {
+    const { id } = req.params;
+    const userResponse: any = await User.findOneAndUpdate(
+      { _id: req.user.payload.id },
+      { $pull: { address: { _id: id } } }
+  );
+    console.log(userResponse, "userResponseuserResponse");
+
+    if (userResponse) {
+      res.json({ statue: true, message: "Address removed" });
+    } else {
+      res.json({ status: false, message: "Address not found" });
+    }
+  } catch (error) {
+    res.json({ status: false, message: error });
+  }
+};
+
+export const deleteCart = async (req: any, res: any) => {
   console.log("I am deleteWishlist");
 
   console.log(req.params, "iddd");
@@ -248,7 +267,7 @@ export const deleteWishlist = async (req: any, res: any) => {
     });
 };
 
-export const deleteCart = async (req: any, res: any) => {
+export const deleteWishlist = async (req: any, res: any) => {
   console.log("I am deleteCart");
 
   console.log(req.params, "iddd");
