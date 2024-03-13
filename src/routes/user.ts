@@ -28,7 +28,7 @@ router.post("/addAddress",authMiddleware, addAddress);
 
 router.post("/getAddress",authMiddleware, getAddress);
 
-router.delete("/deleteAddress",authMiddleware, deleteAddress);
+router.delete("/deleteAddress/:id",authMiddleware, deleteAddress);
 
 router.delete("/deleteWishList/:id", authMiddleware, deleteWishlist);
 
