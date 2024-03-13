@@ -26,7 +26,7 @@ router.get("/getWishList",authMiddleware, getWishLists);
 
 router.post("/addAddress",authMiddleware, addAddress);
 
-router.post("/getAddress",authMiddleware, getAddress);
+router.get("/getAddress",authMiddleware, getAddress);
 
 router.delete("/deleteAddress/:id",authMiddleware, deleteAddress);
 

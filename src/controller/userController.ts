@@ -260,7 +260,7 @@ export const deleteCart = async (req: any, res: any) => {
     .then((data) => {
       console.log(data, "dtaaaaa");
 
-      res.json({ status: true, message: "Wishlist deleted" });
+      res.json({ status: true, message: "Cart item removed" });
     })
     .catch((err) => {
       res.json({ status: false, data: err, message: "Error Found" });
@@ -282,7 +282,7 @@ export const deleteWishlist = async (req: any, res: any) => {
     .then((data) => {
       console.log(data, "dtaaaaa");
 
-      res.json({ status: true, message: "Wishlist deleted" });
+      res.json({ status: true, message: "Wishlist item removed" });
     })
     .catch((err) => {
       res.json({ status: false, data: err, message: "Error Found" });
