@@ -211,12 +211,33 @@ export const addAddress = async (req: any, res: any) => {
   }
 };
 
+export const editAddress = async (req: any, res: any) => {
+  try {
+    const response:any = await User.findByIdAndUpdate(
+      req.user.payload.id,
+      { $pull: { 'address': { _id: req.body._id } } },
+      { new: true }
+    );
+    console.log(response.address,"response.address");
+    response.address.push(req.body); 
+    console.log(response.address,"New response");
+    await response.save();
+    if (response) {
+      res.json({ status: true, message: "Address Created Success" });
+    } else {
+      res.json({ status: false, message: "Address Error" });
+    }
+  } catch (error) {
+    res.json({ status: false, message: error });
+  }
+};
+
 export const getAddress = async (req: any, res: any) => {
   try {
     const userResponse: any = await User.findOne({ _id: req.user.payload.id });
     console.log(userResponse.address, "userResponseuserResponse");
 
-    if (userResponse.length) {
+    if (userResponse.address) {
       res.json({ statue: true, data: userResponse.address });
     } else {
       res.json({ status: false, message: "Address not found" });
