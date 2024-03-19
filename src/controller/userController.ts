@@ -136,11 +136,11 @@ export const getCart = async (req: any, res: any) => {
         const productDetails: any = { ...productResponse };
         if (cartItem?.size) {
           productDetails._doc.size = cartItem.size;
+          productDetails._doc.quantity = cartItem.quantity;
         }
         datas.push(productDetails._doc);
       })
     );
-
     if (datas) {
       res.status(200).json({ status: true, datas });
     } else {
@@ -286,15 +286,15 @@ export const deleteCart = async (req: any, res: any) => {
 export const editQuantityInCart = async (req: any, res: any) => {
   console.log("I am editQuantityInCart");
   console.log(req.user.payload.id, "req.user.payload.id");
-  const productData = await Product.findById(req.id);
+  const productData = await Product.findById(req.body.id);
   const stock = productData?.stock
-  if(stock.length < req.value ){
+  if(stock.length < req.body.value ){
     return res.json({ status: false, message: "0 Stock left" });
   }
   const updatedUser = await User.findByIdAndUpdate(
     req.user.payload.id,
-    { $set: { 'cart.$[element].quantity': req.value } },
-    { new: true, arrayFilters: [{ 'element.id': req.id }] }
+    { $set: { 'cart.$[element].quantity': req.body.value } },
+    { new: true, arrayFilters: [{ 'element.id': req.body.id }] }
   ).then((data) => {
       console.log(data, "dtaaaaa");
       res.json({ status: true, message: "Quantity Increased" });
