@@ -267,12 +267,7 @@ export const deleteAddress = async (req: any, res: any) => {
 };
 
 export const deleteCart = async (req: any, res: any) => {
-  console.log("I am deleteWishlist");
-
-  console.log(req.params, "iddd");
   const { id } = req.params;
-  console.log(req.user.payload.id, "req.user.payload.id");
-
   await User.findByIdAndUpdate(
     req.user.payload.id,
     { $pull: { cart: { id: id } } },
@@ -282,6 +277,27 @@ export const deleteCart = async (req: any, res: any) => {
       console.log(data, "dtaaaaa");
 
       res.json({ status: true, message: "Cart item removed" });
+    })
+    .catch((err) => {
+      res.json({ status: false, data: err, message: "Error Found" });
+    });
+};
+
+export const editQuantityInCart = async (req: any, res: any) => {
+  console.log("I am editQuantityInCart");
+  console.log(req.user.payload.id, "req.user.payload.id");
+  const productData = await Product.findById(req.id);
+  const stock = productData?.stock
+  if(stock.length < req.value ){
+    return res.json({ status: false, message: "0 Stock left" });
+  }
+  await User.findByIdAndUpdate(
+    req.user.payload.id,
+    { 'cart.$.quantity':req.value},
+    { new: true }
+  ).then((data) => {
+      console.log(data, "dtaaaaa");
+      res.json({ status: true, message: "Quantity Increased" });
     })
     .catch((err) => {
       res.json({ status: false, data: err, message: "Error Found" });

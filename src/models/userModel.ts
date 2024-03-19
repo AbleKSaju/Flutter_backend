@@ -33,7 +33,8 @@ const userSchema = new mongoose.Schema<IUser>({
   },
   cart:[{
     id:String,
-    size:String
+    size:String,
+    quantity:Number
 }],
 address:[
   {
