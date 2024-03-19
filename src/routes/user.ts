@@ -38,7 +38,7 @@ router.get("/getProductDetail/:id", getProductDetail);
 
 router.get("/getProducts/:category", getProductsOfCategory);
 
-router.post("/editQuantity/:category",authMiddleware, editQuantityInCart);
+router.post("/editQuantity",authMiddleware, editQuantityInCart);
 
 
 router.get('/logout',logOut)

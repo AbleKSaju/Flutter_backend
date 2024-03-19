@@ -78,7 +78,7 @@ export const addToCart = async (req: any, res: any) => {
     }
     const response = await User.findByIdAndUpdate(
       req.user.payload.id,
-      { $addToSet: { cart: { id: id, size: size } } },
+      { $addToSet: { cart: { id: id, size: size, quantity:1 } } },
       { new: true }
     );
 
@@ -291,10 +291,10 @@ export const editQuantityInCart = async (req: any, res: any) => {
   if(stock.length < req.value ){
     return res.json({ status: false, message: "0 Stock left" });
   }
-  await User.findByIdAndUpdate(
+  const updatedUser = await User.findByIdAndUpdate(
     req.user.payload.id,
-    { 'cart.$.quantity':req.value},
-    { new: true }
+    { $set: { 'cart.$[element].quantity': req.value } },
+    { new: true, arrayFilters: [{ 'element.id': req.id }] }
   ).then((data) => {
       console.log(data, "dtaaaaa");
       res.json({ status: true, message: "Quantity Increased" });
