@@ -4,6 +4,7 @@ import generateToken from "../utils/generateTokens";
 import hashPassword, { verifyPassword } from "../utils/hashPassword";
 import sentOtp from "../utils/nodemailer";
 import Product from "../models/productModel";
+import Order from "../models/orderModel";
 
 export const registerUser = async (req: any, res: any) => {
   try {
@@ -123,9 +124,10 @@ export const getProductsOfCategory = async (req: any, res: any) => {
   }
 };
 
-export const getCart = async (req: any, res: any) => {
+export const  getCart = async (req: any, res: any) => {
   try {
     let datas: any[] = [];
+    let totalPrice=0
     const userResponse: any = await User?.findOne({ _id: req.user.payload.id });
 
     await Promise.all(
@@ -133,16 +135,20 @@ export const getCart = async (req: any, res: any) => {
         const productResponse: any = await Product?.findOne({
           _id: cartItem.id,
         });
+        console.log(productResponse,"productResponseproductResponse");
         const productDetails: any = { ...productResponse };
+        let total = cartItem.quantity * productDetails._doc.price
+        totalPrice+=total
         if (cartItem?.size) {
           productDetails._doc.size = cartItem.size;
           productDetails._doc.quantity = cartItem.quantity;
         }
         datas.push(productDetails._doc);
       })
-    );
+      );
+
     if (datas) {
-      res.status(200).json({ status: true, datas });
+      res.status(200).json({ status: true, datas,totalPrice });
     } else {
       res.json({ status: false, message: "Cart not found" });
     }
@@ -218,7 +224,6 @@ export const editAddress = async (req: any, res: any) => {
       { $pull: { 'address': { _id: req.body._id } } },
       { new: true }
     );
-    console.log(response.address,"response.address");
     response.address.push(req.body); 
     console.log(response.address,"New response");
     await response.save();
@@ -284,20 +289,20 @@ export const deleteCart = async (req: any, res: any) => {
 };
 
 export const editQuantityInCart = async (req: any, res: any) => {
-  console.log("I am editQuantityInCart");
-  console.log(req.user.payload.id, "req.user.payload.id");
   const productData = await Product.findById(req.body.id);
   const stock = productData?.stock
-  if(stock.length < req.body.value ){
+  if(stock < req.body.value ){
     return res.json({ status: false, message: "0 Stock left" });
   }
   const updatedUser = await User.findByIdAndUpdate(
     req.user.payload.id,
     { $set: { 'cart.$[element].quantity': req.body.value } },
     { new: true, arrayFilters: [{ 'element.id': req.body.id }] }
-  ).then((data) => {
+  ).then(async(data) => {
+    const UserData = await User.findById(req.user.payload.id)
+
       console.log(data, "dtaaaaa");
-      res.json({ status: true, message: "Quantity Increased" });
+      res.json({ status: true, message: "Quantity Changed" });
     })
     .catch((err) => {
       res.json({ status: false, data: err, message: "Error Found" });
@@ -325,6 +330,24 @@ export const deleteWishlist = async (req: any, res: any) => {
       res.json({ status: false, data: err, message: "Error Found" });
     });
 };
+
+export const createOrder = async(req:any,res:any)=>{
+  const {addressId,paymentMethod} = req.body
+  const userResponse: any = await User?.findOne({ _id: req.user.payload.id });
+  console.log(userResponse,"userResponse");
+  
+  const newOrder = await Order?.create({
+    productDetails: userResponse.cart,
+    userId: req.user.payload.id,
+    addressId:addressId,
+    paymentMethod:paymentMethod
+  });
+if(newOrder){
+  res.json({ status: true, message: "Order Created" });
+} else {
+  res.json({ status: false, message: "Order Error" });
+}
+}
 
 export const logOut = (req: any, res: any) => {
   try {

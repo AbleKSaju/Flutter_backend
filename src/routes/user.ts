@@ -1,6 +1,6 @@
 import express from "express";
 import authMiddleware from "../utils/authMiddleware";
-import { addAddress, addToCart, addWishList, deleteAddress, deleteCart, deleteWishlist, editAddress, editQuantityInCart, getAddress, getCart, getProductDetail, getProductsOfCategory, getWishLists, logOut, registerUser, userLogin, verifyOtp } from "../controller/userController";
+import { addAddress, addToCart, addWishList, createOrder, deleteAddress, deleteCart, deleteWishlist, editAddress, editQuantityInCart, getAddress, getCart, getProductDetail, getProductsOfCategory, getWishLists, logOut, registerUser, userLogin, verifyOtp } from "../controller/userController";
 const router = express.Router();
 
 router.get("/", (req, res) => {
@@ -40,6 +40,7 @@ router.get("/getProducts/:category", getProductsOfCategory);
 
 router.post("/editQuantity",authMiddleware, editQuantityInCart);
 
+router.post("/placeOrder",authMiddleware, createOrder);
 
 router.get('/logout',logOut)
 
