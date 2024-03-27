@@ -349,6 +349,36 @@ if(newOrder){
 }
 }
 
+export const getOrders = async (req: any, res: any) => {
+  try {
+    const userResponse: any = await Order.find({ userId: req.user.payload.id });
+    console.log(userResponse, "userResponseuserResponse");
+    let datas: any = [];
+    await Promise.all(
+      userResponse?.map(async (items: any) => {
+        const productResponse: any = await Product?.findOne({ _id: items._id });
+        let productDetails: any = { ...productResponse };
+        datas.push(productDetails._doc);
+      })
+    );
+    const addressData = await User.find({_id: req.user.payload.id , 'address._id':userResponse.addressId});
+    datas.paymentMethod = userResponse.paymentMethod
+    datas.address = addressData
+    if(!addressData){
+      res.json({ status: false, message: "Address not found" });
+    }
+    console.log(datas,"datasdatasdatasdatas");
+    
+    if (datas) {
+      res.json({ statue: true, data: datas });
+    } else {
+      res.json({ status: false, message: "Address not found" });
+    }
+  } catch (error) {
+    res.json({ status: false, message: error });
+  }
+};
+
 export const logOut = (req: any, res: any) => {
   try {
     res.cookie("jwt", "", {
