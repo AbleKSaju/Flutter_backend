@@ -1,11 +1,10 @@
+import { Request, Response } from "express";
 import express from "express";
 import user from "./routes/user";
 import admin from "./routes/admin";
 import bodyParser from "body-parser";
 import connectDB from "./config/db";
 import * as dotenv from "dotenv";
-// import session, { SessionOptions } from "express-session";
-// import { MemoryStore } from "express-session";
 import cookieParser from 'cookie-parser';
 import cors from 'cors'
 
@@ -16,35 +15,27 @@ app.use(cookieParser());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 connectDB();
-// const store = new MemoryStore();
-// declare module 'express-session' {
-//   interface Session {
-//     userData:{
-//       _id:string,
-//       email:string
-//     }
-//   }
-// }
+
 app.use(express.static("public/uploads/"));
 app.use(cors({
   origin: "http://localhost:3000",
   methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
   credentials: true,
 }))
-// app.use(
-//   session({
-//     secret: process.env.SESSION_SECRET_KEY,
-//     resave: false,
-//     saveUninitialized: false,
-//     cookie: {
-//       maxAge: 72 * 60 * 60 * 1000,
-//       httpOnly: true,
-//     },
-//     store: store,
-//   } as SessionOptions)
-// );
+let timeouts:any = {};
 
+ const debounceMiddleware = (req:Request, res:Response, next:any) => {
+  const requestId:any = req.method + req.originalUrl;
+  if (timeouts[requestId]) {
+    clearTimeout(timeouts[requestId]);
+  }
+  timeouts[requestId] = setTimeout(() => {
+    delete timeouts[requestId];
+    next();
+  }, 10);
+};
 
+app.use(debounceMiddleware)
 
 app.use("/", user);
 app.use("/admin",admin)

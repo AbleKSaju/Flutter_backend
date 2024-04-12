@@ -8,6 +8,7 @@ interface IUser extends Document {
   cart: string[];
   wishlist: any
   address:any
+  totalPriceInCart:any
 }
 const userSchema = new mongoose.Schema<IUser>({
   name: {
@@ -34,9 +35,12 @@ const userSchema = new mongoose.Schema<IUser>({
   cart:[{
     id:String,
     size:String,
-    quantity:Number
-}],
-address:[
+    quantity:Number,
+  }],
+  totalPriceInCart:{
+    type:String
+  },
+  address:[
   {
     name:String,
     phoneNumber:Number,

@@ -4,6 +4,7 @@ import Product from "../models/productModel";
 import User from "../models/userModel";
 import generateToken from "../utils/generateTokens";
 import { verifyPassword } from "../utils/hashPassword";
+import Order from "../models/orderModel";
 
 export const adminLogin = async (req: any, res: any) => {
   try {
@@ -73,11 +74,12 @@ export const getCategory = async (req: Request, res: Response) => {
 export const getSearchedProducts = async (req: Request, res: Response) => {
 
   const {product} = req.params
+  
   const searchData = await Product
   .find({
     $or: [
       {
-        name: { $regex: ".*" + product + ".*", $options: "i" },
+        name: { $regex: "." + product + ".", $options: "i" },
       }
     ],
   })
@@ -234,3 +236,55 @@ export const editProduct = async (req:any, res: Response) => {
     res.status(500).json({ status: false, message: "Error occur" });
   }
 };
+
+export const getAllOrders = async(req:any,res:any)=>{
+  const orders: any = await Order.find();
+  let datas: any = {};
+  let AllDatas:any = []
+  // let addressData: any; 
+  console.log(req.user.payload.id,"req.user.payload.idreq.user.payload.id");
+  
+  const all=await Promise.all(
+    orders?.map(async (order: any) => {
+        const productPromises = await order.productDetails.map(async (product: any) => {
+            return await Product.findOne({ _id: product.id });
+        });        
+        const productResponses: any[] = await Promise.all(productPromises);
+        const validProducts:any = productResponses.filter(product => product !== null);
+       const addressData:any = await User.find({ _id: req.user.payload.id, 'address._id': order.addressId });
+       const selectedAddress = await addressData?.address?.find((val: any) => val._id == order.addressId);
+       const totalPrice = validProducts.reduce((tot:any,val:any)=>tot + val.price , 0)
+       console.log(totalPrice,"totalPricetotalPrice");
+       
+       const userData:any=await User.findOne({_id:order.userId})
+       datas.products = [];
+        datas.products.push(validProducts[0]);
+        datas.userName = userData.name;
+        datas.email = userData.email;
+        datas.curentStatus = order.status;
+        datas.paymentMethod = order.paymentMethod;
+        datas.totalPrice = totalPrice;
+        AllDatas.push(datas)
+        datas={}
+    })
+);
+
+if(AllDatas){
+  console.log(AllDatas,"AllDatasAllDatasAllDatas");
+  res.json({ status: true,data:AllDatas });
+} else {
+  res.json({ status: false, message: "Order Error" });
+}
+}
+
+export const changeStatus = async(req:any,res:any)=>{
+  console.log(req.body,"BODYY");
+const {orderStatus}:any = req.body;
+const {id}:any = req.body;
+const orderData = await Order.findByIdAndUpdate(id,{status:orderStatus})  
+if(orderData){
+  res.json({ status: true, message:"Status changed"  });
+} else {
+  res.json({ status: false, message: "Order Error" });
+}
+}

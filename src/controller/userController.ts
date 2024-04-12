@@ -79,7 +79,7 @@ export const addToCart = async (req: any, res: any) => {
     }
     const response = await User.findByIdAndUpdate(
       req.user.payload.id,
-      { $addToSet: { cart: { id: id, size: size, quantity:1 } } },
+      { $addToSet: { cart: { id: id, size: size, quantity: 1 } } },
       { new: true }
     );
 
@@ -124,10 +124,10 @@ export const getProductsOfCategory = async (req: any, res: any) => {
   }
 };
 
-export const  getCart = async (req: any, res: any) => {
+export const getCart = async (req: any, res: any) => {
   try {
     let datas: any[] = [];
-    let totalPrice=0
+    let totalPrice = 0;
     const userResponse: any = await User?.findOne({ _id: req.user.payload.id });
 
     await Promise.all(
@@ -135,20 +135,27 @@ export const  getCart = async (req: any, res: any) => {
         const productResponse: any = await Product?.findOne({
           _id: cartItem.id,
         });
-        console.log(productResponse,"productResponseproductResponse");
+        console.log(productResponse, "productResponseproductResponse");
         const productDetails: any = { ...productResponse };
-        let total = cartItem.quantity * productDetails._doc.price
-        totalPrice+=total
+        let total = cartItem.quantity * productDetails._doc.price;
+        totalPrice += total;
+
         if (cartItem?.size) {
           productDetails._doc.size = cartItem.size;
           productDetails._doc.quantity = cartItem.quantity;
         }
         datas.push(productDetails._doc);
       })
-      );
+    );
+    const total = await User.findByIdAndUpdate(req.user.payload.id, {
+      $set: { totalPriceInCart: totalPrice },
+    });
+    console.log(total, "TTTTT");
 
     if (datas) {
-      res.status(200).json({ status: true, datas,totalPrice });
+      console.log("I AM GET CART TESPONS");
+
+      res.status(200).json({ status: true, datas: datas, totalPrice });
     } else {
       res.json({ status: false, message: "Cart not found" });
     }
@@ -219,13 +226,13 @@ export const addAddress = async (req: any, res: any) => {
 
 export const editAddress = async (req: any, res: any) => {
   try {
-    const response:any = await User.findByIdAndUpdate(
+    const response: any = await User.findByIdAndUpdate(
       req.user.payload.id,
-      { $pull: { 'address': { _id: req.body._id } } },
+      { $pull: { address: { _id: req.body._id } } },
       { new: true }
     );
-    response.address.push(req.body); 
-    console.log(response.address,"New response");
+    response.address.push(req.body);
+    console.log(response.address, "New response");
     await response.save();
     if (response) {
       res.json({ status: true, message: "Address Created Success" });
@@ -258,7 +265,7 @@ export const deleteAddress = async (req: any, res: any) => {
     const userResponse: any = await User.findOneAndUpdate(
       { _id: req.user.payload.id },
       { $pull: { address: { _id: id } } }
-  );
+    );
     console.log(userResponse, "userResponseuserResponse");
 
     if (userResponse) {
@@ -290,16 +297,19 @@ export const deleteCart = async (req: any, res: any) => {
 
 export const editQuantityInCart = async (req: any, res: any) => {
   const productData = await Product.findById(req.body.id);
-  const stock = productData?.stock
-  if(stock < req.body.value ){
+  console.log(productData, "productDataproductData");
+
+  const stock = productData?.stock;
+  if (stock < req.body.value) {
     return res.json({ status: false, message: "0 Stock left" });
   }
   const updatedUser = await User.findByIdAndUpdate(
     req.user.payload.id,
-    { $set: { 'cart.$[element].quantity': req.body.value } },
-    { new: true, arrayFilters: [{ 'element.id': req.body.id }] }
-  ).then(async(data) => {
-    const UserData = await User.findById(req.user.payload.id)
+    { $set: { "cart.$[element].quantity": req.body.value } },
+    { new: true, arrayFilters: [{ "element.id": req.body.id }] }
+  )
+    .then(async (data) => {
+      const UserData = await User.findById(req.user.payload.id);
 
       console.log(data, "dtaaaaa");
       res.json({ status: true, message: "Quantity Changed" });
@@ -331,46 +341,91 @@ export const deleteWishlist = async (req: any, res: any) => {
     });
 };
 
-export const createOrder = async(req:any,res:any)=>{
-  const {addressId,paymentMethod} = req.body
+export const createOrder = async (req: any, res: any) => {
+  const { addressId, paymentMethod } = req.body;
   const userResponse: any = await User?.findOne({ _id: req.user.payload.id });
-  console.log(userResponse,"userResponse");
-  
+  console.log(userResponse, "userResponse");
+
   const newOrder = await Order?.create({
     productDetails: userResponse.cart,
     userId: req.user.payload.id,
-    addressId:addressId,
-    paymentMethod:paymentMethod
+    addressId: addressId,
+    paymentMethod: paymentMethod,
+    status: "pending",
   });
-if(newOrder){
-  res.json({ status: true, message: "Order Created" });
-} else {
-  res.json({ status: false, message: "Order Error" });
-}
-}
+
+  if (newOrder) {
+    res.json({ status: true, message: "Order Created" });
+  } else {
+    res.json({ status: false, message: "Order Error" });
+  }
+};
+
+export const cancelOrder = async (req: any, res: any) => {
+  const { orderId } = req.body;
+  const orderCanelled: any = await Order?.findByIdAndUpdate(
+    { _id: orderId },
+    { $set: { status: "cancelled" } }
+  );
+
+  if (orderCanelled) {
+    res.json({ status: true, message: "Order Cancelled" });
+  } else {
+    res.json({ status: false, message: "Order Error" });
+  }
+};
 
 export const getOrders = async (req: any, res: any) => {
+  console.log("I AM getOrders");
+
   try {
     const userResponse: any = await Order.find({ userId: req.user.payload.id });
-    console.log(userResponse, "userResponseuserResponse");
-    let datas: any = [];
-    await Promise.all(
-      userResponse?.map(async (items: any) => {
-        const productResponse: any = await Product?.findOne({ _id: items._id });
-        let productDetails: any = { ...productResponse };
-        datas.push(productDetails._doc);
+    let datas: any = {};
+    let AllDatas: any = [];
+    let addressData: any;
+
+    const all = await Promise.all(
+      userResponse?.map(async (order: any) => {
+        const productPromises = await order.productDetails.map(
+          async (product: any) => {
+            return await Product.findOne({ _id: product.id });
+          }
+        );
+        const productResponses: any[] = await Promise.all(productPromises);
+        const validProducts = productResponses.filter(
+          (product) => product !== null
+        );
+        addressData = await User.find({
+          _id: req.user.payload.id,
+          "address._id": order.addressId,
+        });
+        datas.products = [];
+        console.log(addressData, "addressDataaddressData");
+
+        const selectedAddress = await addressData[0].address.find(
+          (val: any) => val._id == order.addressId
+        );
+        await Promise.all(
+          validProducts.map(async (product) => {
+            console.log(product, "productproduct");
+            await datas.products.push(product);
+          })
+        );
+
+        console.log(order.status, "order.status");
+        datas.curentStatus = order.status;
+        datas.paymentMethod = order.paymentMethod;
+        datas.totalPrice = addressData[0]?.totalPriceInCart;
+        datas.address = selectedAddress;
+        AllDatas.push(datas);
+        datas = {};
       })
     );
-    const addressData = await User.find({_id: req.user.payload.id , 'address._id':userResponse.addressId});
-    datas.paymentMethod = userResponse.paymentMethod
-    datas.address = addressData
-    if(!addressData){
-      res.json({ status: false, message: "Address not found" });
-    }
-    console.log(datas,"datasdatasdatasdatas");
-    
-    if (datas) {
-      res.json({ statue: true, data: datas });
+
+    if (AllDatas) {
+      await User.findByIdAndDelete(req.user.payload.id, { cart: 1 });
+
+      res.json({ statue: true, data: AllDatas });
     } else {
       res.json({ status: false, message: "Address not found" });
     }

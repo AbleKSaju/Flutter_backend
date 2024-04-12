@@ -12,6 +12,9 @@ paymentMethod:{
     type:String,
     require:true
 },
+status:{
+  type:String
+},
 productDetails:[]
 },{
   timestamps:true,
