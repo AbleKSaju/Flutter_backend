@@ -1,6 +1,7 @@
 import express from "express";
 import authMiddleware from "../utils/authMiddleware";
 import { addAddress, addToCart, addWishList, cancelOrder, createOrder, deleteAddress, deleteCart, deleteWishlist, editAddress, editQuantityInCart, getAddress, getCart, getOrders, getProductDetail, getProductsOfCategory, getWishLists, logOut, registerUser, userLogin, verifyOtp } from "../controller/userController";
+import { getOrderDetails } from "../controller/adminController";
 const router = express.Router();
 
 router.get("/", (req, res) => {
@@ -45,6 +46,8 @@ router.post("/placeOrder",authMiddleware, createOrder);
 router.post("/cancelOrder",authMiddleware, cancelOrder);
 
 router.get("/getOrders",authMiddleware, getOrders);
+
+router.get('/getOrderDetails/:id',authMiddleware,getOrderDetails)
 
 router.get('/logout',logOut)
 
