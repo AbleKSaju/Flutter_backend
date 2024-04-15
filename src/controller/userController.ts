@@ -413,6 +413,7 @@ export const getOrders = async (req: any, res: any) => {
         );
 
         console.log(order.status, "order.status");
+        datas._id = order._id;
         datas.curentStatus = order.status;
         datas.paymentMethod = order.paymentMethod;
         datas.totalPrice = addressData[0]?.totalPriceInCart;
