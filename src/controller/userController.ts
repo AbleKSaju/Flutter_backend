@@ -355,6 +355,7 @@ export const createOrder = async (req: any, res: any) => {
   });
 
   if (newOrder) {
+    await User.findByIdAndDelete(req.user.payload.id, { cart: 1 });
     res.json({ status: true, message: "Order Created" });
   } else {
     res.json({ status: false, message: "Order Error" });
@@ -424,8 +425,6 @@ export const getOrders = async (req: any, res: any) => {
     );
 
     if (AllDatas) {
-      await User.findByIdAndDelete(req.user.payload.id, { cart: 1 });
-
       res.json({ statue: true, data: AllDatas });
     } else {
       res.json({ status: false, message: "Address not found" });
@@ -437,22 +436,33 @@ export const getOrders = async (req: any, res: any) => {
 
 export const getOrderDetails = async (req: any, res: any) => {
   const { id } = req.params;
-  console.log(id);
   const order: any = await Order.findById(id);
+  
   const orderDetails: any = [];
-  await order.productDetails.map(async (product: any) => {
-    console.log(product, "productproduct");
-    const productDetails = await Product.findOne({ _id: product.id });
-    orderDetails.push(productDetails);
-  });
-  const addressData: any = await User.find({
-    _id: req.user.payload.id,
-    "address._id": order.addressId,
-  });
-  orderDetails.address = addressData;
-  console.log(orderDetails, "orderDetails");
+  await Promise.all(order.productDetails.map(async (product: any) => {
+      let productDetails = await Product.findOne({ _id: product.id });
+      if (productDetails) {
+          productDetails = {
+              ...productDetails.toObject(),
+              status: order.status,
+              size: product.size,
+              quantity: product.quantity,
+          };
+          orderDetails.push(productDetails);
+      }
+  }));
 
+  const addressData: any = await User.find(
+    {
+      _id: req.user.payload.id,
+      "address._id": order.addressId,
+    },
+    { "address.$": 1 }
+  );  
+  orderDetails.address = addressData[0].address;
+  
   if (orderDetails) {
+    console.log(orderDetails,"orderDetailsorderDetails");
     res.json({ status: true, message: "Status changed", data: orderDetails });
   } else {
     res.json({ status: false, message: "Order Error" });
