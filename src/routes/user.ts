@@ -42,6 +42,8 @@ router.post("/editQuantity",authMiddleware, editQuantityInCart);
 
 router.post("/placeOrder",authMiddleware, createOrder);
 
+router.post("/placeSingleProductOrder",authMiddleware, createSingleProductOrder);
+
 router.post("/cancelOrder",authMiddleware, cancelOrder);
 
 router.get("/getOrders",authMiddleware, getOrders);

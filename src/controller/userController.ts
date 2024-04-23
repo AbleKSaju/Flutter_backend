@@ -21,6 +21,8 @@ export const registerUser = async (req: any, res: any) => {
 };
 
 export const verifyOtp = async (req: any, res: any) => {
+  console.log(req.body, "req.body");
+
   const { otp, oldotp } = req.body;
   if (otp == oldotp) {
     const { firstname, lastname, email, password, mobile }: any = req.body;
@@ -185,9 +187,10 @@ export const addWishList = async (req: any, res: any) => {
 
 export const getWishLists = async (req: any, res: any) => {
   console.log("getWishLists");
+  console.log(req.user.payload.id, "req.user.payload.idreq.user.payload.id");
 
-  const userResponse: any = await User.findOne({ _id: req.user.payload.id });
-  console.log(userResponse.wishlist, "userResponseuserResponse");
+  const userResponse: any = await User.findById(req.user.payload.id);
+  console.log(userResponse, "userResponseuserResponse");
   let datas: any = [];
   await Promise.all(
     userResponse?.wishlist?.map(async (items: any) => {
@@ -355,7 +358,46 @@ export const createOrder = async (req: any, res: any) => {
   });
 
   if (newOrder) {
-    await User.findByIdAndDelete(req.user.payload.id, { cart: 1 });
+    await User.findByIdAndUpdate(req.user.payload.id, { cart: [] });
+    res.json({ status: true, message: "Order Created" });
+  } else {
+    res.json({ status: false, message: "Order Error" });
+  }
+};
+
+export const createSingleProductOrder = async (req: any, res: any) => {
+  console.log(req.body,"req.body");
+  const { addressId, productId, paymentMethod, size } = req.body;
+  
+  let newOrder;
+  if (productId) {
+    const productData={
+      id:productId,
+      size:size,
+      quantity:1
+    }
+    console.log(productData,"productData");
+    
+    newOrder = await Order?.create({
+      productDetails: productData,
+      userId: req.user.payload.id,
+      addressId: addressId,
+      paymentMethod: paymentMethod,
+      status: "pending",
+    });
+  } else {
+    const userResponse: any = await User?.findOne({ _id: req.user.payload.id });
+    newOrder = await Order?.create({
+      productDetails: userResponse.cart,
+      userId: req.user.payload.id,
+      addressId: addressId,
+      paymentMethod: paymentMethod,
+      status: "pending",
+    });
+  }
+
+  if (newOrder) {
+    await User.findByIdAndUpdate(req.user.payload.id, { cart: [] });
     res.json({ status: true, message: "Order Created" });
   } else {
     res.json({ status: false, message: "Order Error" });
@@ -363,9 +405,10 @@ export const createOrder = async (req: any, res: any) => {
 };
 
 export const cancelOrder = async (req: any, res: any) => {
-  const { orderId } = req.body;
+  console.log(req.params, " req.params");
+  const { id } = req.params;
   const orderCanelled: any = await Order?.findByIdAndUpdate(
-    { _id: orderId },
+    { _id: id },
     { $set: { status: "cancelled" } }
   );
 
@@ -378,15 +421,20 @@ export const cancelOrder = async (req: any, res: any) => {
 
 export const getOrders = async (req: any, res: any) => {
   console.log("I AM getOrders");
+  console.log(req.user.payload.id, "req.user.payload.id");
 
   try {
-    const userResponse: any = await Order.find({ userId: req.user.payload.id });
+    const orderResponse: any = await Order.find({
+      userId: req.user.payload.id,
+    });
+    if (!orderResponse) {
+      return res.json({ status: false, message: "Order not found" });
+    }
     let datas: any = {};
     let AllDatas: any = [];
     let addressData: any;
-
     const all = await Promise.all(
-      userResponse?.map(async (order: any) => {
+      orderResponse?.map(async (order: any) => {
         const productPromises = await order.productDetails.map(
           async (product: any) => {
             return await Product.findOne({ _id: product.id });
@@ -401,68 +449,77 @@ export const getOrders = async (req: any, res: any) => {
           "address._id": order.addressId,
         });
         datas.products = [];
-        console.log(addressData, "addressDataaddressData");
-
         const selectedAddress = await addressData[0].address.find(
           (val: any) => val._id == order.addressId
         );
         await Promise.all(
           validProducts.map(async (product) => {
-            console.log(product, "productproduct");
             await datas.products.push(product);
           })
-        );
-
-        console.log(order.status, "order.status");
-        datas._id = order._id;
-        datas.curentStatus = order.status;
-        datas.paymentMethod = order.paymentMethod;
-        datas.totalPrice = addressData[0]?.totalPriceInCart;
-        datas.address = selectedAddress;
-        AllDatas.push(datas);
-        datas = {};
+        ).then(() => {
+          datas._id = order._id;
+          datas.curentStatus = order.status;
+          datas.paymentMethod = order.paymentMethod;
+          datas.totalPrice = addressData[0]?.totalPriceInCart;
+          datas.address = selectedAddress;
+          AllDatas.push(datas);
+          datas = {};
+        });
       })
     );
-
+    console.log(AllDatas, "AllDatas");
     if (AllDatas) {
       res.json({ statue: true, data: AllDatas });
     } else {
       res.json({ status: false, message: "Address not found" });
     }
   } catch (error) {
+    console.log(error, "errorerror");
+
     res.json({ status: false, message: error });
   }
 };
 
 export const getOrderDetails = async (req: any, res: any) => {
+  console.log("getOrderDetailsgetOrderDetails");
+
   const { id } = req.params;
+  console.log(id, "idid");
+
   const order: any = await Order.findById(id);
-  
+  console.log(order, "orderorder");
+
   const orderDetails: any = [];
-  await Promise.all(order.productDetails.map(async (product: any) => {
+  await Promise.all(
+    order.productDetails.map(async (product: any) => {
       let productDetails = await Product.findOne({ _id: product.id });
       if (productDetails) {
-          productDetails = {
-              ...productDetails.toObject(),
-              status: order.status,
-              size: product.size,
-              quantity: product.quantity,
-          };
-          orderDetails.push(productDetails);
+        productDetails = {
+          ...productDetails.toObject(),
+          status: order.status,
+          size: product.size,
+          quantity: product.quantity,
+        };
+        console.log(productDetails, "productDetails");
+
+        orderDetails.push(productDetails);
       }
-  }));
+    })
+  );
+  console.log(order.userId, "order.userId");
 
   const addressData: any = await User.find(
     {
-      _id: req.user.payload.id,
+      _id: order.userId,
       "address._id": order.addressId,
     },
     { "address.$": 1 }
-  );  
+  );
+  console.log(orderDetails, "orderDetailsorderDetails");
+  console.log(addressData, "addressDataaddressData");
   orderDetails.address = addressData[0].address;
-  
+
   if (orderDetails) {
-    console.log(orderDetails,"orderDetailsorderDetails");
     res.json({ status: true, message: "Status changed", data: orderDetails });
   } else {
     res.json({ status: false, message: "Order Error" });

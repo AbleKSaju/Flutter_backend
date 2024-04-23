@@ -74,6 +74,7 @@ export const getCategory = async (req: Request, res: Response) => {
 export const getSearchedProducts = async (req: Request, res: Response) => {
   const { product } = req.params;
 
+
   const searchData = await Product.find({
     $or: [
       {
@@ -259,9 +260,10 @@ export const getAllOrders = async (req: any, res: any) => {
         (product) => product !== null
       );
       const addressData: any = await User.find({
-        _id: req.user.payload.id,
+        _id: order.userId,
         "address._id": order.addressId,
       });
+      
       const selectedAddress = await addressData?.address?.find(
         (val: any) => val._id == order.addressId
       );
@@ -269,13 +271,15 @@ export const getAllOrders = async (req: any, res: any) => {
         (tot: any, val: any) => tot + val.price,
         0
       );
-      console.log(totalPrice, "totalPricetotalPrice");
 
       const userData: any = await User.findOne({ _id: order.userId });
+      
       datas.products = [];
       datas.products.push(validProducts[0]);
       datas.userName = userData.name;
       datas.email = userData.email;
+      datas.mobile = userData.mobile;
+      datas._id = order._id;
       datas.curentStatus = order.status;
       datas.paymentMethod = order.paymentMethod;
       datas.totalPrice = totalPrice;
@@ -285,7 +289,6 @@ export const getAllOrders = async (req: any, res: any) => {
   );
 
   if (AllDatas) {
-    console.log(AllDatas, "AllDatasAllDatasAllDatas");
     res.json({ status: true, data: AllDatas });
   } else {
     res.json({ status: false, message: "Order Error" });
@@ -293,8 +296,7 @@ export const getAllOrders = async (req: any, res: any) => {
 };
 
 
-export const changeStatus = async (req: any, res: any) => {
-  console.log(req.body, "BODYY");
+export const changeStatus = async (req: any, res: any) => {  
   const { orderStatus }: any = req.body;
   const { id }: any = req.body;
   const orderData = await Order.findByIdAndUpdate(id, { status: orderStatus });
