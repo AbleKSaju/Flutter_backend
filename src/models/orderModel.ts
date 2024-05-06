@@ -12,11 +12,19 @@ paymentMethod:{
     type:String,
     require:true
 },
+deliveryDate: {
+  type: Date,
+  default: () => {
+    const currentDate = new Date();
+    const deliveryDate = new Date(currentDate.setDate(currentDate.getDate() + 5));
+    return deliveryDate;
+  }
+},
 status:{
   type:String
 },
-productDetails:[]
-},{
+productDetails:[],},
+{
   timestamps:true,
 })
 

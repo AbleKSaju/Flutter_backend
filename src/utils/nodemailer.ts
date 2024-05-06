@@ -21,8 +21,6 @@ const sentOtp = async (req: any, res: any) => {
     },
   });
   const otp = generateotp();
-  console.log(otp);
-
   const info = await transporter.sendMail({
     from: process.env.AUTH_EMAIL,
     to: req.body.email,
@@ -38,6 +36,8 @@ const sentOtp = async (req: any, res: any) => {
         `,
   });
   if (info) {
+    console.log(otp,"otp");
+    
     res.status(200).json({otp:otp, data:req.body, message:"Verify your OTP on your Email"});
   } else {
     res.json({message:"email error"});

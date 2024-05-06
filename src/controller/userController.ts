@@ -21,8 +21,6 @@ export const registerUser = async (req: any, res: any) => {
 };
 
 export const verifyOtp = async (req: any, res: any) => {
-  console.log(req.body, "req.body");
-
   const { otp, oldotp } = req.body;
   if (otp == oldotp) {
     const { firstname, lastname, email, password, mobile }: any = req.body;
@@ -53,10 +51,9 @@ export const userLogin = async (req: any, res: any) => {
           status: true,
           token: token,
           message: "Login success",
-          // _id: userData._id,
-          // name: userData.name,
-          // email: userData.email,
-          // mobile: userData.mobile,
+          name: userData.name,
+          email: userData.email,
+          mobile: userData.mobile,
         });
       } else {
         res.json({ status: false, message: "Password is wrong" });
@@ -112,9 +109,7 @@ export const getProductDetail = async (req: any, res: any) => {
 export const getProductsOfCategory = async (req: any, res: any) => {
   try {
     const { category } = req.params;
-    console.log(category, "Catttt");
     const productData = await Product.find({ category: category });
-    console.log(productData, "productDataproductData");
 
     if (productData) {
       res.json({ status: true, data: productData });
@@ -137,10 +132,9 @@ export const getCart = async (req: any, res: any) => {
         const productResponse: any = await Product?.findOne({
           _id: cartItem.id,
         });
-        console.log(productResponse, "productResponseproductResponse");
         const productDetails: any = { ...productResponse };
-        let total = cartItem.quantity * productDetails._doc.price;
-        totalPrice += total;
+        let total = cartItem.quantity * productDetails._doc.price
+        totalPrice += total
 
         if (cartItem?.size) {
           productDetails._doc.size = cartItem.size;
@@ -149,15 +143,15 @@ export const getCart = async (req: any, res: any) => {
         datas.push(productDetails._doc);
       })
     );
-    const total = await User.findByIdAndUpdate(req.user.payload.id, {
-      $set: { totalPriceInCart: totalPrice },
-    });
-    console.log(total, "TTTTT");
+    const total = await User.findByIdAndUpdate(req.user.payload.id, { $set: { totalPriceInCart: totalPrice } })
+
 
     if (datas) {
-      console.log("I AM GET CART TESPONS");
+console.log(datas,"datas");
+console.log(totalPrice,"totalPrice");
 
       res.status(200).json({ status: true, datas: datas, totalPrice });
+
     } else {
       res.json({ status: false, message: "Cart not found" });
     }
@@ -186,11 +180,7 @@ export const addWishList = async (req: any, res: any) => {
 };
 
 export const getWishLists = async (req: any, res: any) => {
-  console.log("getWishLists");
-  console.log(req.user.payload.id, "req.user.payload.idreq.user.payload.id");
-
   const userResponse: any = await User.findById(req.user.payload.id);
-  console.log(userResponse, "userResponseuserResponse");
   let datas: any = [];
   await Promise.all(
     userResponse?.wishlist?.map(async (items: any) => {
@@ -199,8 +189,6 @@ export const getWishLists = async (req: any, res: any) => {
       datas.push(productDetails._doc);
     })
   );
-  console.log(datas, "DATAASS");
-
   if (datas.length) {
     res.json({ statue: true, data: datas });
   } else {
@@ -210,7 +198,6 @@ export const getWishLists = async (req: any, res: any) => {
 
 export const addAddress = async (req: any, res: any) => {
   try {
-    console.log(req.body, "BODY");
 
     const response = await User.findByIdAndUpdate(
       req.user.payload.id,
@@ -235,7 +222,6 @@ export const editAddress = async (req: any, res: any) => {
       { new: true }
     );
     response.address.push(req.body);
-    console.log(response.address, "New response");
     await response.save();
     if (response) {
       res.json({ status: true, message: "Address Created Success" });
@@ -250,7 +236,6 @@ export const editAddress = async (req: any, res: any) => {
 export const getAddress = async (req: any, res: any) => {
   try {
     const userResponse: any = await User.findOne({ _id: req.user.payload.id });
-    console.log(userResponse.address, "userResponseuserResponse");
 
     if (userResponse.address) {
       res.json({ statue: true, data: userResponse.address });
@@ -269,7 +254,6 @@ export const deleteAddress = async (req: any, res: any) => {
       { _id: req.user.payload.id },
       { $pull: { address: { _id: id } } }
     );
-    console.log(userResponse, "userResponseuserResponse");
 
     if (userResponse) {
       res.json({ statue: true, message: "Address removed" });
@@ -289,7 +273,6 @@ export const deleteCart = async (req: any, res: any) => {
     { new: true }
   )
     .then((data) => {
-      console.log(data, "dtaaaaa");
 
       res.json({ status: true, message: "Cart item removed" });
     })
@@ -300,7 +283,6 @@ export const deleteCart = async (req: any, res: any) => {
 
 export const editQuantityInCart = async (req: any, res: any) => {
   const productData = await Product.findById(req.body.id);
-  console.log(productData, "productDataproductData");
 
   const stock = productData?.stock;
   if (stock < req.body.value) {
@@ -314,7 +296,6 @@ export const editQuantityInCart = async (req: any, res: any) => {
     .then(async (data) => {
       const UserData = await User.findById(req.user.payload.id);
 
-      console.log(data, "dtaaaaa");
       res.json({ status: true, message: "Quantity Changed" });
     })
     .catch((err) => {
@@ -323,11 +304,8 @@ export const editQuantityInCart = async (req: any, res: any) => {
 };
 
 export const deleteWishlist = async (req: any, res: any) => {
-  console.log("I am deleteCart");
 
-  console.log(req.params, "iddd");
   const { id } = req.params;
-  console.log(req.user.payload.id, "req.user.payload.id");
 
   await User.findByIdAndUpdate(
     req.user.payload.id,
@@ -335,7 +313,6 @@ export const deleteWishlist = async (req: any, res: any) => {
     { new: true }
   )
     .then((data) => {
-      console.log(data, "dtaaaaa");
 
       res.json({ status: true, message: "Wishlist item removed" });
     })
@@ -345,9 +322,9 @@ export const deleteWishlist = async (req: any, res: any) => {
 };
 
 export const createOrder = async (req: any, res: any) => {
+
   const { addressId, paymentMethod } = req.body;
   const userResponse: any = await User?.findOne({ _id: req.user.payload.id });
-  console.log(userResponse, "userResponse");
 
   const newOrder = await Order?.create({
     productDetails: userResponse.cart,
@@ -366,38 +343,24 @@ export const createOrder = async (req: any, res: any) => {
 };
 
 export const createSingleProductOrder = async (req: any, res: any) => {
-  console.log(req.body,"req.body");
+
   const { addressId, productId, paymentMethod, size } = req.body;
-  
-  let newOrder;
-  if (productId) {
-    const productData={
-      id:productId,
-      size:size,
-      quantity:1
-    }
-    console.log(productData,"productData");
-    
-    newOrder = await Order?.create({
-      productDetails: productData,
-      userId: req.user.payload.id,
-      addressId: addressId,
-      paymentMethod: paymentMethod,
-      status: "pending",
-    });
-  } else {
-    const userResponse: any = await User?.findOne({ _id: req.user.payload.id });
-    newOrder = await Order?.create({
-      productDetails: userResponse.cart,
-      userId: req.user.payload.id,
-      addressId: addressId,
-      paymentMethod: paymentMethod,
-      status: "pending",
-    });
+
+  const productData = {
+    id: productId,
+    size: size,
+    quantity: 1
   }
 
+  const newOrder = await Order?.create({
+    productDetails: productData,
+    userId: req.user.payload.id,
+    addressId: addressId,
+    paymentMethod: paymentMethod,
+    status: "pending",
+  });
+
   if (newOrder) {
-    await User.findByIdAndUpdate(req.user.payload.id, { cart: [] });
     res.json({ status: true, message: "Order Created" });
   } else {
     res.json({ status: false, message: "Order Error" });
@@ -405,34 +368,27 @@ export const createSingleProductOrder = async (req: any, res: any) => {
 };
 
 export const cancelOrder = async (req: any, res: any) => {
-  console.log(req.params, " req.params");
-  const { id } = req.params;
-  const orderCanelled: any = await Order?.findByIdAndUpdate(
-    { _id: id },
-    { $set: { status: "cancelled" } }
-  );
+  const { id } = req.params
+  const orderCanelled: any = await Order?.findByIdAndUpdate({ _id: id }, { $set: { status: "cancelled" } });
 
   if (orderCanelled) {
     res.json({ status: true, message: "Order Cancelled" });
   } else {
     res.json({ status: false, message: "Order Error" });
   }
-};
+}
 
 export const getOrders = async (req: any, res: any) => {
-  console.log("I AM getOrders");
-  console.log(req.user.payload.id, "req.user.payload.id");
 
   try {
-    const orderResponse: any = await Order.find({
-      userId: req.user.payload.id,
-    });
+    const orderResponse: any = await Order.find({ userId: req.user.payload.id }).sort({ createdAt: -1 });
     if (!orderResponse) {
       return res.json({ status: false, message: "Order not found" });
     }
     let datas: any = {};
-    let AllDatas: any = [];
+    let AllDatas: any = []
     let addressData: any;
+
     const all = await Promise.all(
       orderResponse?.map(async (order: any) => {
         const productPromises = await order.productDetails.map(
@@ -441,6 +397,7 @@ export const getOrders = async (req: any, res: any) => {
           }
         );
         const productResponses: any[] = await Promise.all(productPromises);
+
         const validProducts = productResponses.filter(
           (product) => product !== null
         );
@@ -456,57 +413,50 @@ export const getOrders = async (req: any, res: any) => {
           validProducts.map(async (product) => {
             await datas.products.push(product);
           })
-        ).then(() => {
-          datas._id = order._id;
-          datas.curentStatus = order.status;
-          datas.paymentMethod = order.paymentMethod;
-          datas.totalPrice = addressData[0]?.totalPriceInCart;
-          datas.address = selectedAddress;
-          AllDatas.push(datas);
-          datas = {};
-        });
+        );
+        datas._id = order._id;
+        datas.curentStatus = order.status;
+        datas.createdAt = order.createdAt;
+        datas.paymentMethod = order.paymentMethod;
+        datas.totalPrice = addressData[0]?.totalPriceInCart;
+        AllDatas.push(datas);
+        datas = {};
       })
-    );
-    console.log(AllDatas, "AllDatas");
+    )
+    AllDatas.sort((a: any, b: any) => b.createdAt.getTime() - a.createdAt.getTime())
+
     if (AllDatas) {
       res.json({ statue: true, data: AllDatas });
     } else {
       res.json({ status: false, message: "Address not found" });
     }
   } catch (error) {
-    console.log(error, "errorerror");
-
     res.json({ status: false, message: error });
   }
 };
 
+
+
 export const getOrderDetails = async (req: any, res: any) => {
-  console.log("getOrderDetailsgetOrderDetails");
-
   const { id } = req.params;
-  console.log(id, "idid");
-
   const order: any = await Order.findById(id);
-  console.log(order, "orderorder");
-
   const orderDetails: any = [];
   await Promise.all(
     order.productDetails.map(async (product: any) => {
       let productDetails = await Product.findOne({ _id: product.id });
       if (productDetails) {
+
         productDetails = {
           ...productDetails.toObject(),
+          deliveryDate: order.deliveryDate,
           status: order.status,
           size: product.size,
           quantity: product.quantity,
         };
-        console.log(productDetails, "productDetails");
-
         orderDetails.push(productDetails);
       }
     })
   );
-  console.log(order.userId, "order.userId");
 
   const addressData: any = await User.find(
     {
@@ -515,12 +465,16 @@ export const getOrderDetails = async (req: any, res: any) => {
     },
     { "address.$": 1 }
   );
-  console.log(orderDetails, "orderDetailsorderDetails");
-  console.log(addressData, "addressDataaddressData");
-  orderDetails.address = addressData[0].address;
+  console.log(addressData[0].address[0], "addressData[0].address");
+  const address = addressData[0].address[0]
+  orderDetails.push(addressData[0].address[0])
+  // orderDetails.hai = "oiii"
+  // orderDetails.address.push(address)
 
   if (orderDetails) {
-    res.json({ status: true, message: "Status changed", data: orderDetails });
+    console.log(orderDetails, "orderDetails");
+
+    res.json({ status: true, message: "Order details", data: orderDetails });
   } else {
     res.json({ status: false, message: "Order Error" });
   }

@@ -1,7 +1,7 @@
 import express from "express";
 import authMiddleware from "../utils/authMiddleware";
-import { addAddress, addToCart, addWishList, cancelOrder, createOrder, deleteAddress, deleteCart, deleteWishlist, editAddress, editQuantityInCart, getAddress, getCart, getOrderDetails, getOrders, getProductDetail, getProductsOfCategory, getWishLists, logOut, registerUser, userLogin, verifyOtp } from "../controller/userController";
-const router = express.Router();
+import { addAddress, addToCart, addWishList, cancelOrder, createOrder, createSingleProductOrder, deleteAddress, deleteCart, deleteWishlist, editAddress, editQuantityInCart, getAddress, getCart, getOrderDetails, getOrders, getProductDetail, getProductsOfCategory, getWishLists, logOut, registerUser, userLogin, verifyOtp } from "../controller/userController";
+ const router = express.Router();
 
 router.get("/", (req, res) => {
   console.log("Enter");
@@ -42,11 +42,13 @@ router.post("/editQuantity",authMiddleware, editQuantityInCart);
 
 router.post("/placeOrder",authMiddleware, createOrder);
 
+router.post("/cancelOrder/:id",authMiddleware, cancelOrder);
+
 router.post("/placeSingleProductOrder",authMiddleware, createSingleProductOrder);
 
-router.post("/cancelOrder",authMiddleware, cancelOrder);
-
 router.get("/getOrders",authMiddleware, getOrders);
+
+// router.get("/getAllOrders",authMiddleware, getAllOrders);
 
 router.get('/getOrderDetails/:id',authMiddleware,getOrderDetails)
 

@@ -8,7 +8,7 @@ const category = multers.categories;
 const products = multers.products;
 
 
-router.post('/login',adminLogin)
+router.post('/adminLogin',adminLogin)
 
 router.post('/addCategory',category.single("image"),addCategory)
 
@@ -24,7 +24,7 @@ router.post('/addProduct',products.array("image", 4),addProduct)
 
 router.get('/getProduct',getProduct)
 
-router.get('/getAllOrders',authMiddleware,getAllOrders)
+router.get('/getAllOrders',authMiddleware,getAllOrders)     
 
 router.delete('/deleteProduct/:id',deleteProduct)
 

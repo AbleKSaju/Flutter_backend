@@ -8,16 +8,13 @@ import Order from "../models/orderModel";
 
 export const adminLogin = async (req: any, res: any) => {
   try {
-    console.log("ENter to admin");
     const { email, password } = req.body;
     let adminData: any = await User?.findOne({ email });
     if (adminData?.isAdmin == true) {
       let verified = await verifyPassword(password, adminData.password);
-      console.log(verified, "vero");
       if (verified) {
         let token = await generateToken(res, adminData);
         res.cookie("jwt", token, { httpOnly: true });
-        console.log(token, "token");
         res.json({
           status: true,
           token: token,
@@ -40,8 +37,6 @@ export const adminLogin = async (req: any, res: any) => {
 
 export const addCategory = async (req: any, res: any) => {
   try {
-    console.log(req, "RQQQQ");
-    console.log(req.user, "USER");
 
     const { name } = req?.body;
     let categoryData = await Category?.findOne({ name });
@@ -73,17 +68,19 @@ export const getCategory = async (req: Request, res: Response) => {
 
 export const getSearchedProducts = async (req: Request, res: Response) => {
   const { product } = req.params;
+console.log(product,"product");
 
 
   const searchData = await Product.find({
     $or: [
       {
-        name: { $regex: "." + product + ".", $options: "i" },
+        name: { $regex: ".*" + product + ".*", $options: "i" },
       },
     ],
   })
     .lean()
     .then((data: any) => {
+      console.log(data,"datadata");
       if (data.length) {
         data.reverse();
         res.json({ status: true, data: data });
@@ -96,11 +93,9 @@ export const getSearchedProducts = async (req: Request, res: Response) => {
 export const editCategory = async (req: Request, res: Response) => {
   try {
     const { id, name } = req.body;
-    console.log(id, name, "id, nameid, name");
 
     let image;
     const data = await Category.findById(id).lean();
-    console.log(data, "datadata");
 
     if (data) {
       if (req.file) {
@@ -127,9 +122,6 @@ export const editCategory = async (req: Request, res: Response) => {
 };
 
 export const deleteCategory = async (req: Request, res: Response) => {
-  console.log("I am deleteCategory");
-
-  console.log(req.params, "iddd");
   const { id } = req.params;
 
   await Category.findByIdAndDelete({ _id: id })
@@ -142,6 +134,8 @@ export const deleteCategory = async (req: Request, res: Response) => {
 };
 
 export const addProduct = async (req: any, res: any) => {
+  console.log(req.files,"req.files");
+  
   const { name, description, price, stock, category } = req.body;
   const productData = await Product?.findOne({ name });
   if (productData) {
@@ -183,11 +177,8 @@ export const getProduct = async (req: Request, res: Response) => {
 
 export const deleteProduct = async (req: Request, res: Response) => {
   const { id } = req.params;
-  console.log(id, "ID");
   await Product.findByIdAndDelete({ _id: id })
     .then((data) => {
-      console.log(data);
-
       res.json({ status: true, message: "Product deleted" });
     })
     .catch((err) => {
@@ -196,9 +187,10 @@ export const deleteProduct = async (req: Request, res: Response) => {
 };
 
 export const editProduct = async (req: any, res: Response) => {
-  console.log(" iAM editProduct");
-
   try {
+    console.log(req.file,"req.filesreq.fileseeee");
+    console.log(req.files,"req.filesreq.files");
+    
     const { id, name, description, price, stock, category } = req.body;
     const data = await Product.findOne({ _id: id }).lean();
     if (data) {
@@ -296,10 +288,13 @@ export const getAllOrders = async (req: any, res: any) => {
 };
 
 
+
 export const changeStatus = async (req: any, res: any) => {  
   const { orderStatus }: any = req.body;
   const { id }: any = req.body;
   const orderData = await Order.findByIdAndUpdate(id, { status: orderStatus });
+  console.log(orderData);
+  
   if (orderData) {
     res.json({ status: true, message: "Status changed" });
   } else {

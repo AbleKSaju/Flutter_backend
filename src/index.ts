@@ -29,7 +29,7 @@ let timeouts:any = {};
   if (timeouts[requestId]) {
     clearTimeout(timeouts[requestId]);
   }
-  timeouts[requestId] = setTimeout(() => {
+  timeouts[requestId] = setTimeout(() => {``
     delete timeouts[requestId];
     next();
   }, 10);
