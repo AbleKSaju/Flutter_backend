@@ -10,25 +10,25 @@ const products = multers.products;
 
 router.post('/adminLogin',adminLogin)
 
-router.post('/addCategory',category.single("image"),addCategory)
+router.post('/addCategory',authMiddleware,category.single("image"),addCategory)
 
-router.get('/getCategory',getCategory)
+router.get('/getCategory',authMiddleware,getCategory)
 
-router.get('/getSearchedProducts/:product',getSearchedProducts)
+router.get('/getSearchedProducts/:product',authMiddleware,getSearchedProducts)
 
-router.delete('/deleteCategory/:id',deleteCategory)
+router.delete('/deleteCategory/:id',authMiddleware,deleteCategory)
 
-router.post('/editCategory',category.single("image"),editCategory)
+router.post('/editCategory',authMiddleware,category.single("image"),editCategory)
 
-router.post('/addProduct',products.array("image", 4),addProduct)
+router.post('/addProduct',authMiddleware,products.array("image", 4),addProduct)
 
-router.get('/getProduct',getProduct)
+router.get('/getProduct',authMiddleware,getProduct)
 
 router.get('/getAllOrders',authMiddleware,getAllOrders)     
 
-router.delete('/deleteProduct/:id',deleteProduct)
+router.delete('/deleteProduct/:id',authMiddleware,deleteProduct)
 
-router.patch('/editProduct',products.array("image", 4),editProduct)
+router.patch('/editProduct',authMiddleware,products.array("image", 4),editProduct)
 
 router.post('/changeStatus',authMiddleware,changeStatus)
 

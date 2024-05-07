@@ -18,7 +18,7 @@ connectDB();
 
 app.use(express.static("public/uploads/"));
 app.use(cors({
-  origin: "http://localhost:3000",
+  // origin: "http://localhost:3000",
   methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
   credentials: true,
 }))
