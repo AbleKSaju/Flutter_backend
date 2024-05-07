@@ -68,19 +68,19 @@ export const getCategory = async (req: Request, res: Response) => {
 
 export const getSearchedProducts = async (req: Request, res: Response) => {
   const { product } = req.params;
-console.log(product,"product");
+  console.log(product, "product");
 
 
   const searchData = await Product.find({
     $or: [
       {
-        name: { $regex: ".*" + product + ".*", $options: "i" },
+        name: { $regex: "." + product + ".", $options: "i" },
       },
     ],
   })
     .lean()
     .then((data: any) => {
-      console.log(data,"datadata");
+      console.log(data, "datadata");
       if (data.length) {
         data.reverse();
         res.json({ status: true, data: data });
@@ -134,8 +134,8 @@ export const deleteCategory = async (req: Request, res: Response) => {
 };
 
 export const addProduct = async (req: any, res: any) => {
-  console.log(req.files,"req.files");
-  
+  console.log(req.files, "req.files");
+
   const { name, description, price, stock, category } = req.body;
   const productData = await Product?.findOne({ name });
   if (productData) {
@@ -188,9 +188,9 @@ export const deleteProduct = async (req: Request, res: Response) => {
 
 export const editProduct = async (req: any, res: Response) => {
   try {
-    console.log(req.file,"req.filesreq.fileseeee");
-    console.log(req.files,"req.filesreq.files");
-    
+    console.log(req.file, "req.filesreq.fileseeee");
+    console.log(req.files, "req.filesreq.files");
+
     const { id, name, description, price, stock, category } = req.body;
     const data = await Product.findOne({ _id: id }).lean();
     if (data) {
@@ -255,7 +255,7 @@ export const getAllOrders = async (req: any, res: any) => {
         _id: order.userId,
         "address._id": order.addressId,
       });
-      
+
       const selectedAddress = await addressData?.address?.find(
         (val: any) => val._id == order.addressId
       );
@@ -265,7 +265,7 @@ export const getAllOrders = async (req: any, res: any) => {
       );
 
       const userData: any = await User.findOne({ _id: order.userId });
-      
+
       datas.products = [];
       datas.products.push(validProducts[0]);
       datas.userName = userData.name;
@@ -281,6 +281,7 @@ export const getAllOrders = async (req: any, res: any) => {
   );
 
   if (AllDatas) {
+    AllDatas.sort((a: any, b: any) => a.products.createdAt - b.products.createdAt)
     res.json({ status: true, data: AllDatas });
   } else {
     res.json({ status: false, message: "Order Error" });
@@ -289,12 +290,12 @@ export const getAllOrders = async (req: any, res: any) => {
 
 
 
-export const changeStatus = async (req: any, res: any) => {  
+export const changeStatus = async (req: any, res: any) => {
   const { orderStatus }: any = req.body;
   const { id }: any = req.body;
   const orderData = await Order.findByIdAndUpdate(id, { status: orderStatus });
   console.log(orderData);
-  
+
   if (orderData) {
     res.json({ status: true, message: "Status changed" });
   } else {
