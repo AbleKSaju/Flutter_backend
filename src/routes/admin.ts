@@ -14,7 +14,7 @@ router.post('/addCategory',authMiddleware,category.single("image"),addCategory)
 
 router.get('/getCategory',authMiddleware,getCategory)
 
-router.get('/getSearchedProducts/:product',authMiddleware,getSearchedProducts)
+router.get('/getSearchedProducts/:product',getSearchedProducts)
 
 router.delete('/deleteCategory/:id',authMiddleware,deleteCategory)
 

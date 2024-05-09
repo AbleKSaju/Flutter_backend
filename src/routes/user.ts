@@ -4,7 +4,6 @@ import { addAddress, addToCart, addWishList, cancelOrder, createOrder, createSin
  const router = express.Router();
 
 router.get("/", (req, res) => {
-  console.log("Enter");
   res.json("Hello World");
 });
 

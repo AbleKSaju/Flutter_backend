@@ -68,9 +68,8 @@ export const getCategory = async (req: Request, res: Response) => {
 
 export const getSearchedProducts = async (req: Request, res: Response) => {
   const { product } = req.params;
-  console.log(product, "product");
-
-
+  console.log(product,"product");
+  
   const searchData = await Product.find({
     $or: [
       {
@@ -80,7 +79,7 @@ export const getSearchedProducts = async (req: Request, res: Response) => {
   })
     .lean()
     .then((data: any) => {
-      console.log(data, "datadata");
+      console.log(data,"data");
       if (data.length) {
         data.reverse();
         res.json({ status: true, data: data });
@@ -134,7 +133,6 @@ export const deleteCategory = async (req: Request, res: Response) => {
 };
 
 export const addProduct = async (req: any, res: any) => {
-  console.log(req.files, "req.files");
 
   const { name, description, price, stock, category } = req.body;
   const productData = await Product?.findOne({ name });
@@ -188,8 +186,6 @@ export const deleteProduct = async (req: Request, res: Response) => {
 
 export const editProduct = async (req: any, res: Response) => {
   try {
-    console.log(req.file, "req.filesreq.fileseeee");
-    console.log(req.files, "req.filesreq.files");
 
     const { id, name, description, price, stock, category } = req.body;
     const data = await Product.findOne({ _id: id }).lean();
@@ -222,15 +218,12 @@ export const editProduct = async (req: any, res: Response) => {
         res.status(200).json({ status: true, message: "Prodict Edited" });
       }
     } else {
-      console.log("Iam eelsde");
       return res
         .status(404)
         .json({ status: false, message: "Product not found" });
     }
   } catch (error) {
-    console.log("Ia m error");
 
-    console.log(error, "errrrr");
     res.status(500).json({ status: false, message: "Error occur" });
   }
 };
@@ -294,7 +287,6 @@ export const changeStatus = async (req: any, res: any) => {
   const { orderStatus }: any = req.body;
   const { id }: any = req.body;
   const orderData = await Order.findByIdAndUpdate(id, { status: orderStatus });
-  console.log(orderData);
 
   if (orderData) {
     res.json({ status: true, message: "Status changed" });

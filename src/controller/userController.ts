@@ -423,9 +423,10 @@ export const getOrders = async (req: any, res: any) => {
         datas = {};
       })
     )
-    AllDatas.sort((a: any, b: any) => b.createdAt.getTime() - a.createdAt.getTime())
 
     if (AllDatas) {
+      AllDatas.sort((a: any, b: any) => a.products.createdAt - b.products.createdAt)
+
       res.json({ statue: true, data: AllDatas });
     } else {
       res.json({ status: false, message: "Address not found" });
