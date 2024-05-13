@@ -73,11 +73,10 @@ export const getSearchedProducts = async (req: Request, res: Response) => {
   const searchData = await Product.find({
     $or: [
       {
-        name: { $regex: "." + product + ".", $options: "i" },
+        name: { $regex: new RegExp(product, 'i') }
       },
     ],
   })
-    .lean()
     .then((data: any) => {
       console.log(data,"data");
       if (data.length) {
