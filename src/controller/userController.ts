@@ -133,8 +133,8 @@ export const getCart = async (req: any, res: any) => {
           _id: cartItem.id,
         });
         const productDetails: any = { ...productResponse };
-        let total = cartItem.quantity * productDetails._doc.price
-        totalPrice += total
+        let total = cartItem.quantity * productDetails._doc.price;
+        totalPrice += total;
 
         if (cartItem?.size) {
           productDetails._doc.size = cartItem.size;
@@ -143,15 +143,12 @@ export const getCart = async (req: any, res: any) => {
         datas.push(productDetails._doc);
       })
     );
-    const total = await User.findByIdAndUpdate(req.user.payload.id, { $set: { totalPriceInCart: totalPrice } })
-
+    const total = await User.findByIdAndUpdate(req.user.payload.id, {
+      $set: { totalPriceInCart: totalPrice },
+    });
 
     if (datas) {
-console.log(datas,"datas");
-console.log(totalPrice,"totalPrice");
-
       res.status(200).json({ status: true, datas: datas, totalPrice });
-
     } else {
       res.json({ status: false, message: "Cart not found" });
     }
@@ -198,7 +195,6 @@ export const getWishLists = async (req: any, res: any) => {
 
 export const addAddress = async (req: any, res: any) => {
   try {
-
     const response = await User.findByIdAndUpdate(
       req.user.payload.id,
       { $push: { address: req.body } },
@@ -273,7 +269,6 @@ export const deleteCart = async (req: any, res: any) => {
     { new: true }
   )
     .then((data) => {
-
       res.json({ status: true, message: "Cart item removed" });
     })
     .catch((err) => {
@@ -304,7 +299,6 @@ export const editQuantityInCart = async (req: any, res: any) => {
 };
 
 export const deleteWishlist = async (req: any, res: any) => {
-
   const { id } = req.params;
 
   await User.findByIdAndUpdate(
@@ -313,7 +307,6 @@ export const deleteWishlist = async (req: any, res: any) => {
     { new: true }
   )
     .then((data) => {
-
       res.json({ status: true, message: "Wishlist item removed" });
     })
     .catch((err) => {
@@ -322,7 +315,6 @@ export const deleteWishlist = async (req: any, res: any) => {
 };
 
 export const createOrder = async (req: any, res: any) => {
-
   const { addressId, paymentMethod } = req.body;
   const userResponse: any = await User?.findOne({ _id: req.user.payload.id });
 
@@ -343,14 +335,13 @@ export const createOrder = async (req: any, res: any) => {
 };
 
 export const createSingleProductOrder = async (req: any, res: any) => {
-
   const { addressId, productId, paymentMethod, size } = req.body;
 
   const productData = {
     id: productId,
     size: size,
-    quantity: 1
-  }
+    quantity: 1,
+  };
 
   const newOrder = await Order?.create({
     productDetails: productData,
@@ -368,25 +359,29 @@ export const createSingleProductOrder = async (req: any, res: any) => {
 };
 
 export const cancelOrder = async (req: any, res: any) => {
-  const { id } = req.params
-  const orderCanelled: any = await Order?.findByIdAndUpdate({ _id: id }, { $set: { status: "cancelled" } });
+  const { id } = req.params;
+  const orderCanelled: any = await Order?.findByIdAndUpdate(
+    { _id: id },
+    { $set: { status: "cancelled" } }
+  );
 
   if (orderCanelled) {
     res.json({ status: true, message: "Order Cancelled" });
   } else {
     res.json({ status: false, message: "Order Error" });
   }
-}
+};
 
 export const getOrders = async (req: any, res: any) => {
-
   try {
-    const orderResponse: any = await Order.find({ userId: req.user.payload.id }).sort({ createdAt: -1 });
+    const orderResponse: any = await Order.find({
+      userId: req.user.payload.id,
+    }).sort({ createdAt: -1 });
     if (!orderResponse) {
       return res.json({ status: false, message: "Order not found" });
     }
     let datas: any = {};
-    let AllDatas: any = []
+    let AllDatas: any = [];
     let addressData: any;
 
     const all = await Promise.all(
@@ -422,10 +417,12 @@ export const getOrders = async (req: any, res: any) => {
         AllDatas.push(datas);
         datas = {};
       })
-    )
+    );
 
     if (AllDatas) {
-      AllDatas.sort((a: any, b: any) => a.products.createdAt - b.products.createdAt)
+      AllDatas.sort(
+        (a: any, b: any) => a.products.createdAt - b.products.createdAt
+      );
 
       res.json({ statue: true, data: AllDatas });
     } else {
@@ -436,8 +433,6 @@ export const getOrders = async (req: any, res: any) => {
   }
 };
 
-
-
 export const getOrderDetails = async (req: any, res: any) => {
   const { id } = req.params;
   const order: any = await Order.findById(id);
@@ -446,7 +441,6 @@ export const getOrderDetails = async (req: any, res: any) => {
     order.productDetails.map(async (product: any) => {
       let productDetails = await Product.findOne({ _id: product.id });
       if (productDetails) {
-
         productDetails = {
           ...productDetails.toObject(),
           deliveryDate: order.deliveryDate,
@@ -466,15 +460,12 @@ export const getOrderDetails = async (req: any, res: any) => {
     },
     { "address.$": 1 }
   );
-  console.log(addressData[0].address[0], "addressData[0].address");
-  const address = addressData[0].address[0]
-  orderDetails.push(addressData[0].address[0])
+  const address = addressData[0].address[0];
+  orderDetails.push(addressData[0].address[0]);
   // orderDetails.hai = "oiii"
   // orderDetails.address.push(address)
 
   if (orderDetails) {
-    console.log(orderDetails, "orderDetails");
-
     res.json({ status: true, message: "Order details", data: orderDetails });
   } else {
     res.json({ status: false, message: "Order Error" });

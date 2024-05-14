@@ -4,7 +4,7 @@ import { addAddress, addToCart, addWishList, cancelOrder, createOrder, createSin
  const router = express.Router();
 
 router.get("/", (req, res) => {
-  res.json("Hello World");
+  res.json("Welcome to Kicks - Able K Saju");
 });
 
 router.post("/register",registerUser);

@@ -67,18 +67,15 @@ export const getCategory = async (req: Request, res: Response) => {
 };
 
 export const getSearchedProducts = async (req: Request, res: Response) => {
-  const { product } = req.params;
-  console.log(product,"product");
-  
+  const { product } = req.params;  
   const searchData = await Product.find({
     $or: [
       {
-        name: { $regex: new RegExp(product, 'i') }
+        name: { $regex: new RegExp('^' + product, 'i') }
       },
     ],
   })
     .then((data: any) => {
-      console.log(data,"data");
       if (data.length) {
         data.reverse();
         res.json({ status: true, data: data });
