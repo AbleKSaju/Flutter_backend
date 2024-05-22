@@ -16,7 +16,6 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 connectDB();
 
-app.use(express.static("public/uploads/"));
 const allowedOrigins = [
   'https://admin-web-ec121.web.app',
   'https://flutter-backend-sym1.onrender.com'
@@ -34,6 +33,7 @@ app.use(cors({
   methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
   credentials: true, // Allow credentials (cookies, authorization headers, etc.)
 }));
+app.use(express.static("public/uploads/"));
 let timeouts:any = {};
 
  const debounceMiddleware = (req:Request, res:Response, next:any) => {
