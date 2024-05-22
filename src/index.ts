@@ -17,11 +17,23 @@ app.use(bodyParser.urlencoded({ extended: true }));
 connectDB();
 
 app.use(express.static("public/uploads/"));
+const allowedOrigins = [
+  'https://admin-web-ec121.web.app',
+  'https://flutter-backend-sym1.onrender.com'
+];
+
 app.use(cors({
-  // origin: "http://localhost:3000",
+  origin: (origin:any, callback) => {
+    // Check if the origin is in the allowed origins array
+    if (allowedOrigins.includes(origin) || !origin) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
-  credentials: true,
-}))
+  credentials: true, // Allow credentials (cookies, authorization headers, etc.)
+}));
 let timeouts:any = {};
 
  const debounceMiddleware = (req:Request, res:Response, next:any) => {
