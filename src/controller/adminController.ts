@@ -130,8 +130,7 @@ export const toggleCategoryBlockedStatus = async (req: Request,res: Response) =>
     // Update the category's blocked status
     await Category.findByIdAndUpdate(id, { blocked: newBlockedStatus });
 
-    res.json({
-      status: true,
+    res.status(200).json({
       message: "Category status updated",
       blocked: newBlockedStatus,
     });
@@ -192,7 +191,7 @@ export const toggleProductBlockedStatus = async (req: Request, res: Response) =>
     const newBlockedStatus = !product.blocked;
     // Update the product's blocked status
     await Product.findByIdAndUpdate(id, { blocked: newBlockedStatus });
-    res.json({ status: true, message: "Product status updated", blocked: newBlockedStatus });
+    res.status(200).json({ message: "Product status updated", blocked: newBlockedStatus });
   } catch (err) {
     res.json({ status: false, data: err, message: "Error occurred" });
   }
