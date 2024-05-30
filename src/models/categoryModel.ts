@@ -4,6 +4,11 @@ const categorySchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  blocked:{
+    type:Boolean,
+    default:false,
+    require:true
+  },
   image:{
     type:String,
     require:true

@@ -37,7 +37,6 @@ export const adminLogin = async (req: any, res: any) => {
 
 export const addCategory = async (req: any, res: any) => {
   try {
-
     const { name } = req?.body;
     let categoryData = await Category?.findOne({ name });
     if (categoryData) {
@@ -67,22 +66,21 @@ export const getCategory = async (req: Request, res: Response) => {
 };
 
 export const getSearchedProducts = async (req: Request, res: Response) => {
-  const { product } = req.params;  
+  const { product } = req.params;
   const searchData = await Product.find({
     $or: [
       {
-        name: { $regex: new RegExp('^' + product, 'i') }
+        name: { $regex: new RegExp("^" + product, "i") },
       },
     ],
-  })
-    .then((data: any) => {
-      if (data.length) {
-        data.reverse();
-        res.json({ status: true, data: data });
-      } else {
-        res.json({ status: false, message: "No categories found" });
-      }
-    });
+  }).then((data: any) => {
+    if (data.length) {
+      data.reverse();
+      res.json({ status: true, data: data });
+    } else {
+      res.json({ status: false, message: "No categories found" });
+    }
+  });
 };
 
 export const editCategory = async (req: Request, res: Response) => {
@@ -116,20 +114,33 @@ export const editCategory = async (req: Request, res: Response) => {
   }
 };
 
-export const deleteCategory = async (req: Request, res: Response) => {
+export const toggleCategoryBlockedStatus = async (req: Request,res: Response) => {
   const { id } = req.params;
+  try {
+    // Find the category by ID
+    const category = await Category.findById(id);
 
-  await Category.findByIdAndDelete({ _id: id })
-    .then(() => {
-      res.json({ status: true, message: "Category deleted" });
-    })
-    .catch((err) => {
-      res.json({ status: false, data: err, message: "Error Occur" });
+    if (!category) {
+      return res
+        .status(404)
+        .json({ status: false, message: "Category not found" });
+    }
+    // Toggle the blocked status
+    const newBlockedStatus = !category.blocked;
+    // Update the category's blocked status
+    await Category.findByIdAndUpdate(id, { blocked: newBlockedStatus });
+
+    res.json({
+      status: true,
+      message: "Category status updated",
+      blocked: newBlockedStatus,
     });
+  } catch (err) {
+    res.json({ status: false, data: err, message: "Error occurred" });
+  }
 };
 
 export const addProduct = async (req: any, res: any) => {
-
   const { name, description, price, stock, category } = req.body;
   const productData = await Product?.findOne({ name });
   if (productData) {
@@ -169,20 +180,26 @@ export const getProduct = async (req: Request, res: Response) => {
     });
 };
 
-export const deleteProduct = async (req: Request, res: Response) => {
+export const toggleProductBlockedStatus = async (req: Request, res: Response) => {
   const { id } = req.params;
-  await Product.findByIdAndDelete({ _id: id })
-    .then((data) => {
-      res.json({ status: true, message: "Product deleted" });
-    })
-    .catch((err) => {
-      res.json({ status: false, data: err, message: "Error Occur" });
-    });
+  try {
+    // Find the product by ID
+    const product = await Product.findById(id);
+    if (!product) {
+      return res.status(404).json({ status: false, message: "Product not found" });
+    }
+    // Toggle the blocked status
+    const newBlockedStatus = !product.blocked;
+    // Update the product's blocked status
+    await Product.findByIdAndUpdate(id, { blocked: newBlockedStatus });
+    res.json({ status: true, message: "Product status updated", blocked: newBlockedStatus });
+  } catch (err) {
+    res.json({ status: false, data: err, message: "Error occurred" });
+  }
 };
 
 export const editProduct = async (req: any, res: Response) => {
   try {
-
     const { id, name, description, price, stock, category } = req.body;
     const data = await Product.findOne({ _id: id }).lean();
     if (data) {
@@ -219,7 +236,6 @@ export const editProduct = async (req: any, res: Response) => {
         .json({ status: false, message: "Product not found" });
     }
   } catch (error) {
-
     res.status(500).json({ status: false, message: "Error occur" });
   }
 };
@@ -270,14 +286,14 @@ export const getAllOrders = async (req: any, res: any) => {
   );
 
   if (AllDatas) {
-    AllDatas.sort((a: any, b: any) => a.products.createdAt - b.products.createdAt)
+    AllDatas.sort(
+      (a: any, b: any) => a.products.createdAt - b.products.createdAt
+    );
     res.json({ status: true, data: AllDatas });
   } else {
     res.json({ status: false, message: "Order Error" });
   }
 };
-
-
 
 export const changeStatus = async (req: any, res: any) => {
   const { orderStatus }: any = req.body;

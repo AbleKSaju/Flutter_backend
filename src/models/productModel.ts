@@ -35,6 +35,11 @@ const productSchema:any = new mongoose.Schema(
       type: String,
       required: true,
     },
+    blocked:{
+      type: Boolean,
+      default:false,
+      require:true
+    }
   },
   {
     timestamps: true,
