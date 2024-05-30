@@ -53,7 +53,7 @@ export const addCategory = async (req: any, res: any) => {
 };
 
 export const getCategory = async (req: Request, res: Response) => {
-  await Category.find()
+  await Category.find({blocked:false})
     .lean()
     .then((data: any) => {
       if (data.length) {
@@ -167,7 +167,7 @@ export const addProduct = async (req: any, res: any) => {
 };
 
 export const getProduct = async (req: Request, res: Response) => {
-  await Product.find()
+  await Product.find({blocked:false})
     .lean()
     .then((data: any) => {
       if (data.length) {
