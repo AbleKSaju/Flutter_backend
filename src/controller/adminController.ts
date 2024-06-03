@@ -188,7 +188,7 @@ export const toggleProductBlockedStatus = async (req: Request, res: Response) =>
       return res.status(404).json({ status: false, message: "Product not found" });
     }
     // Toggle the blocked status
-    const newBlockedStatus = !product.blocked || true;
+    const newBlockedStatus = !product.blocked;
     // Update the product's blocked status
     await Product.findByIdAndUpdate(id, { blocked: newBlockedStatus });
     res.status(200).json({ message: "Product status updated", blocked: newBlockedStatus });
