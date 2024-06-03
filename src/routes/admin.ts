@@ -1,5 +1,5 @@
 import express from "express"
-import { addCategory, addProduct, adminLogin, changeStatus, deleteCategory, deleteProduct, editCategory, editProduct, getAllOrders, getCategory, getProduct, getSearchedProducts, toggleCategoryBlockedStatus, toggleProductBlockedStatus } from "../controller/adminController"
+import { addCategory, addProduct, adminLogin, changeStatus, editCategory, editProduct, getAllOrders, getCategory, getProduct, getSearchedProducts, toggleCategoryBlockedStatus, toggleProductBlockedStatus } from "../controller/adminController"
 import multers from "../utils/multer"
 import authMiddleware from "../utils/authMiddleware"
 const router=express.Router()
