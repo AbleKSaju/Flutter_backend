@@ -25,7 +25,7 @@ router.get('/getProduct',authMiddleware,getProduct)
 
 router.get('/getAllOrders',authMiddleware,getAllOrders)     
 
-router.delete('/changeProductStatus/:id',authMiddleware,toggleProductBlockedStatus)
+router.patch('/changeProductStatus/:id',authMiddleware,toggleProductBlockedStatus)
 
 router.patch('/editProduct',authMiddleware,products.array("image", 4),editProduct)
 
