@@ -7,7 +7,6 @@ const categorySchema = new mongoose.Schema({
   blocked:{
     type:Boolean,
     default:false,
-    require:true
   },
   image:{
     type:String,

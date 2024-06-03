@@ -126,7 +126,7 @@ export const toggleCategoryBlockedStatus = async (req: Request,res: Response) =>
         .json({ status: false, message: "Category not found" });
     }
     // Toggle the blocked status
-    const newBlockedStatus = !category.blocked;
+    const newBlockedStatus = !category.blocked || true;
     // Update the category's blocked status
     await Category.findByIdAndUpdate(id, { blocked: newBlockedStatus });
 
@@ -188,7 +188,7 @@ export const toggleProductBlockedStatus = async (req: Request, res: Response) =>
       return res.status(404).json({ status: false, message: "Product not found" });
     }
     // Toggle the blocked status
-    const newBlockedStatus = !product.blocked;
+    const newBlockedStatus = !product.blocked || true;
     // Update the product's blocked status
     await Product.findByIdAndUpdate(id, { blocked: newBlockedStatus });
     res.status(200).json({ message: "Product status updated", blocked: newBlockedStatus });
