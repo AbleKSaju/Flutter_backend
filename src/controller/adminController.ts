@@ -123,15 +123,15 @@ export const toggleCategoryBlockedStatus = async (req: Request,res: Response) =>
     if (!category) {
       return res
         .status(404)
-        .json({ status: false, message: "Category not found" });
+        .json({ status: false, message: "Brand not found" });
     }
     // Toggle the blocked status
-    const newBlockedStatus = !category.blocked || true;
+    const newBlockedStatus = !category.blocked;
     // Update the category's blocked status
     await Category.findByIdAndUpdate(id, { blocked: newBlockedStatus });
 
     res.status(200).json({
-      message: "Category status updated",
+      message: "Brand status updated",
       blocked: newBlockedStatus,
     });
   } catch (err) {
