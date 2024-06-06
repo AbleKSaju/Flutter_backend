@@ -352,7 +352,7 @@ export const createSingleProductOrder = async (req: any, res: any) => {
   });
 
   if (newOrder) {
-    res.json({ status: true, message: "Order Created" });
+    res.json({ status: true, message: "Order Created", orderId:newOrder._id });
   } else {
     res.json({ status: false, message: "Order Error" });
   }
