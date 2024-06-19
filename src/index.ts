@@ -19,6 +19,7 @@ connectDB();
 const allowedOrigins = [
   'https://admin-web-ec121.web.app',
   'https://flutter-backend-sym1.onrender.com',
+  'https://flutter-backend-sym1.onrender.com',
   'https://kicks-cart-web.web.app',
   'https://user-3f08a.web.app',
   'https://admin-9d5fa.web.app'

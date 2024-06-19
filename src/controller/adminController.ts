@@ -286,7 +286,7 @@ export const getAllOrders = async (req: any, res: any) => {
 
   if (AllDatas) {
     AllDatas.sort(
-      `(a: any, b: any) => a.products.createdAt - b.products.createdAt
+      (a: any, b: any) => a.products.createdAt - b.products.createdAt
     );
     res.json({ status: true, data: AllDatas });
   } else {
